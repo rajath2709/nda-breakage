@@ -3,797 +3,588 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NDA Breakage System</title>
+<title>Breakage System</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;color:#1a1a1a;font-size:14px}
-:root{
-  --red:#A32D2D;--red-l:#FCEBEB;--red-m:#E24B4A;
-  --teal:#0F6E56;--teal-l:#E1F5EE;--teal-m:#1D9E75;
-  --amber:#BA7517;--amber-l:#FAEEDA;
-  --blue:#185FA5;--blue-l:#E6F1FB;
-  --purple:#534AB7;--purple-l:#EEEDFE;
-  --border:#e2e4e8;--bg:#fff;--bg2:#f8f9fa;
-}
+:root{--red:#A32D2D;--red-l:#FCEBEB;--red-m:#E24B4A;--teal:#0F6E56;--teal-l:#E1F5EE;--teal-m:#1D9E75;--amber:#BA7517;--amber-l:#FAEEDA;--blue:#185FA5;--blue-l:#E6F1FB;--purple:#534AB7;--purple-l:#EEEDFE;--border:#e2e4e8;--bg:#fff;--bg2:#f8f9fa;}
 .header{background:#fff;border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .header h1{font-size:15px;font-weight:700}
 .role-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-left:8px;display:none}
-.role-godown{background:#FFF3CD;color:#856404}
-.role-supervisor{background:var(--blue-l);color:var(--blue)}
-.role-owner{background:var(--teal-l);color:var(--teal)}
-.btn-change{font-size:11px;padding:5px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);cursor:pointer;color:#666;display:none}
-.wrap{max-width:960px;margin:0 auto;padding:16px}
+.role-godown{background:#FFF3CD;color:#856404}.role-supervisor{background:var(--blue-l);color:var(--blue)}.role-owner{background:var(--teal-l);color:var(--teal)}
+.btn-logout{font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);cursor:pointer;color:#666;display:none}
+.body{max-width:960px;margin:0 auto;padding:16px}
 .page{display:none}.page.active{display:block}
 .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-.btn{background:var(--teal-m);color:#fff;border:none;border-radius:8px;padding:0 18px;font-size:13px;font-weight:700;cursor:pointer;height:38px;white-space:nowrap}
-.btn:hover{opacity:.88}.btn:disabled{opacity:.4;cursor:default}
-.btn-red{background:var(--red)}.btn-purple{background:var(--purple)}.btn-blue{background:var(--blue)}
-.btn-sm{height:32px;font-size:12px;padding:0 12px}
-.inp{font-size:14px;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;outline:none}
-.inp:focus{border-color:var(--teal-m)}
-.inp-sm{font-size:13px;padding:6px 10px;border:1.5px solid var(--border);border-radius:7px;outline:none}
-.inp-sm:focus{border-color:var(--teal-m)}
-.inp-num{font-size:13px;font-weight:600;padding:5px 7px;border:1.5px solid var(--border);border-radius:7px;text-align:center;outline:none;background:#f5f5f5;color:#aaa;width:72px}
-.inp-num:not([disabled]){background:#fff;color:#1a1a1a}
-.inp-num:focus{border-color:var(--teal-m)}
-.inp-price{width:88px;text-align:right}
+.btn-primary{background:var(--teal-m);color:#fff;border:none;border-radius:8px;padding:0 18px;font-size:13px;font-weight:700;cursor:pointer;height:38px}
+.btn-primary:hover{background:var(--teal)}
+.input-text{font-size:14px;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;outline:none;width:100%}
+.input-text:focus{border-color:var(--teal-m)}
 .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
-.chip{font-size:11px;padding:3px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:#555}
+.chip{font-size:11px;padding:3px 9px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:#555}
 .chip:hover{background:var(--teal-l);color:var(--teal);border-color:var(--teal-m)}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:4px 10px;border-radius:20px;margin-top:8px}
+.pill-ok{background:var(--teal-l);color:var(--teal)}.pill-err{background:var(--red-l);color:var(--red)}.pill-loading{background:var(--amber-l);color:var(--amber)}
+.spinner{display:inline-block;width:12px;height:12px;border:2px solid var(--amber);border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 .tabs{display:flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px;background:var(--bg2)}
-.tab{flex:1;padding:9px 4px;font-size:12px;font-weight:600;text-align:center;cursor:pointer;background:transparent;color:#888;border:none}
+.tab{flex:1;padding:9px 0;font-size:12px;font-weight:600;text-align:center;cursor:pointer;background:transparent;color:#888;border:none}
 .tab.active{background:#fff;color:#1a1a1a}
-.pane{display:none}.pane.active{display:block}
-.role-screen{max-width:440px;margin:50px auto;text-align:center}
+.tab-pane{display:none}.tab-pane.active{display:block}
+.role-screen{max-width:460px;margin:60px auto;text-align:center}
 .role-screen h2{font-size:20px;font-weight:700;margin-bottom:6px}
-.role-screen p{font-size:13px;color:#888;margin-bottom:28px}
-.role-cards{display:flex;flex-direction:column;gap:10px}
-.role-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:16px 20px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:14px}
+.role-screen p{font-size:13px;color:#888;margin-bottom:32px}
+.role-cards{display:flex;flex-direction:column;gap:12px}
+.role-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:18px 22px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:16px}
 .role-card:hover{border-color:var(--teal-m)}
 .rc-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.rc-title{font-size:15px;font-weight:700}
-.rc-desc{font-size:12px;color:#888;margin-top:2px}
+.rc-title{font-size:15px;font-weight:700}.rc-desc{font-size:12px;color:#888;margin-top:2px}
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center}
-.modal-bg.open{display:flex}
-.modal{background:#fff;border-radius:16px;padding:28px 26px;width:300px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.2)}
-.modal h3{font-size:16px;font-weight:700;margin-bottom:4px}
-.modal p{font-size:12px;color:#888;margin-bottom:16px}
-.modal .inp{width:100%;font-size:16px;text-align:center;margin-bottom:10px}
-.modal .inp.pin{font-size:22px;letter-spacing:8px}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border-radius:16px;padding:28px 30px;width:300px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:4px}.modal p{font-size:12px;color:#888;margin-bottom:16px}
+.modal input{width:100%;font-size:16px;text-align:center;padding:10px;border:2px solid var(--border);border-radius:8px;outline:none;margin-bottom:10px}
+.modal input.pin-inp{font-size:22px;letter-spacing:8px}.modal input:focus{border-color:var(--teal-m)}
 .modal-err{font-size:12px;color:var(--red);margin-top:6px;display:none}
 .modal-cancel{font-size:12px;color:#aaa;margin-top:10px;cursor:pointer;text-decoration:underline;display:block}
 .tbl{width:100%;border-collapse:collapse;font-size:13px}
-.tbl th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#999;padding:7px 8px;border-bottom:2px solid var(--border);background:var(--bg2);text-align:left}
-.tbl td{padding:8px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+.tbl th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#999;padding:7px 10px;border-bottom:2px solid var(--border);background:var(--bg2);text-align:left}
+.tbl td{padding:8px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
 .tbl tbody tr:last-child td{border-bottom:none}
+.inp-num{font-size:13px;font-weight:600;padding:5px 7px;border:1.5px solid var(--border);border-radius:7px;outline:none;background:#f5f5f5;color:#aaa}
+.inp-num:not([disabled]){background:#fff;color:#1a1a1a}.inp-num:focus{border-color:var(--teal-m)}
+.inp-text{font-size:13px;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;outline:none}
+.inp-text:focus{border-color:var(--teal-m)}
 .badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px}
-.b-reported{background:#FFF3CD;color:#856404}
-.b-invoiced{background:var(--purple-l);color:var(--purple)}
-.b-sent{background:var(--amber-l);color:var(--amber)}
-.b-survey{background:var(--blue-l);color:var(--blue)}
-.b-resolved{background:var(--teal-l);color:var(--teal)}
-.b-rejected{background:var(--red-l);color:var(--red)}
-.brk-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px}
-.brk-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
-.brk-item{font-size:13px;font-weight:600}
-.brk-meta{font-size:11px;color:#888;margin-top:3px;line-height:1.6}
-.big-num{font-size:22px;font-weight:700;color:var(--red);text-align:right}
-.big-lbl{font-size:10px;color:#aaa;text-align:right}
-.email-box{background:#f8f9fa;border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:12px;line-height:1.7;white-space:pre-wrap;font-family:monospace;color:#333;max-height:240px;overflow-y:auto;margin-top:8px}
-.copy-btn{font-size:11px;padding:5px 12px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;color:#555;margin-top:6px}
+.s-reported{background:#FFF3CD;color:#856404}.s-verified{background:var(--blue-l);color:var(--blue)}.s-invoiced{background:var(--purple-l);color:var(--purple)}.s-sent{background:var(--amber-l);color:var(--amber)}.s-resolved{background:var(--teal-l);color:var(--teal)}.s-rejected{background:var(--red-l);color:var(--red)}
+.email-draft{background:#f8f9fa;border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:12px;line-height:1.7;max-height:320px;overflow-y:auto;margin-top:8px}
+.copy-btn{font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;color:#555;margin-top:6px}
 .copy-btn:hover{background:var(--teal-l);color:var(--teal)}
 .master-bar{background:var(--purple-l);border:1px solid #AFA9EC;border-radius:12px;padding:14px 16px;margin-bottom:12px}
-.empty{text-align:center;padding:32px;color:#aaa;font-size:13px;font-style:italic}
-.stat-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.stat{flex:1;min-width:100px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:11px 13px}
-.stat-v{font-size:22px;font-weight:700}.stat-l{font-size:10px;color:#999;margin-top:2px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
-.stat.red .stat-v{color:var(--red)}.stat.ok .stat-v{color:var(--teal)}.stat.warn .stat-v{color:var(--amber)}
-.prev-wrap{background:var(--amber-l);border:1px solid #f5c842;border-radius:10px;padding:12px 14px;margin-bottom:10px}
-.prev-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--amber);margin-bottom:8px}
-.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--amber);border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
-@keyframes spin{to{transform:rotate(360deg)}}
-.pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:4px 10px;border-radius:20px;margin-top:8px}
-.pill-ok{background:var(--teal-l);color:var(--teal)}
-.pill-err{background:var(--red-l);color:var(--red)}
-.pill-loading{background:var(--amber-l);color:var(--amber)}
-.row-flex{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.sep{height:1px;background:var(--border);margin:10px 0}
+.empty-state{text-align:center;padding:32px;color:#aaa;font-size:13px;font-style:italic}
+.prev-banner{background:var(--amber-l);border:1px solid #f5c842;border-radius:10px;padding:12px 14px;margin-bottom:10px;font-size:12px}
+.prev-banner strong{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--amber);margin-bottom:8px}
 </style>
 </head>
 <body>
-
 <div class="header">
   <div style="display:flex;align-items:center">
     <h1>&#9888; Breakage System</h1>
     <span class="role-badge" id="roleBadge"></span>
   </div>
-  <button class="btn-change" id="changeBtn" onclick="logout()">&#8592; Change role</button>
+  <button class="btn-logout" id="logoutBtn" onclick="logout()">&#8592; Change role</button>
 </div>
-
-<div class="wrap">
-
-  <!-- ROLE SELECTION -->
+<div class="body">
   <div class="page active" id="page-role">
     <div class="role-screen">
       <h2>Who are you?</h2>
       <p>Select your role to continue</p>
       <div class="role-cards">
-        <div class="role-card" id="rc-godown">
-          <div class="rc-icon" style="background:#FFF3CD">&#128722;</div>
-          <div><div class="rc-title">Godown Incharge</div><div class="rc-desc">Report damaged boxes from incoming bills</div></div>
-        </div>
-        <div class="role-card" id="rc-supervisor">
-          <div class="rc-icon" style="background:var(--blue-l)">&#128203;</div>
-          <div><div class="rc-title">Supervisor</div><div class="rc-desc">Verify reports and raise claim invoices</div></div>
-        </div>
-        <div class="role-card" id="rc-owner">
-          <div class="rc-icon" style="background:var(--teal-l)">&#128274;</div>
-          <div><div class="rc-title">Owner</div><div class="rc-desc">Approve claims, send emails, track credits</div></div>
-        </div>
+        <div class="role-card" id="rc-godown"><div class="rc-icon" style="background:#FFF3CD">&#128722;</div><div><div class="rc-title">Godown Incharge</div><div class="rc-desc">Report damaged boxes from incoming bills</div></div></div>
+        <div class="role-card" id="rc-supervisor"><div class="rc-icon" style="background:var(--blue-l)">&#128203;</div><div><div class="rc-title">Supervisor</div><div class="rc-desc">Verify reports and raise claim invoices</div></div></div>
+        <div class="role-card" id="rc-owner"><div class="rc-icon" style="background:var(--teal-l)">&#128274;</div><div><div class="rc-title">Owner</div><div class="rc-desc">Approve claims, send emails, track credits</div></div></div>
       </div>
     </div>
   </div>
-
-  <!-- GODOWN -->
   <div class="page" id="page-godown">
     <div class="card">
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:10px">Select bill</div>
-      <div class="row-flex">
-        <input type="text" class="inp" id="gdBillInput" placeholder="Type or pick invoice number..." style="flex:1"/>
-        <button class="btn" id="gdLoadBtn">Load &#8594;</button>
-      </div>
-      <div id="gdPill"></div>
-      <div class="chips" id="gdChips"><span class="spinner"></span></div>
+      <div style="display:flex;gap:8px"><input type="text" class="input-text" id="gdBillInput" placeholder="Type or pick invoice number..." style="flex:1"/><button class="btn-primary" id="gdLoadBtn">Load &#8594;</button></div>
+      <div id="gdPill" style="display:none"></div>
+      <div class="chips" id="gdChips"></div>
     </div>
     <div id="gdFlow" style="display:none">
       <div id="gdPrevWrap" style="display:none"></div>
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <div>
-            <div style="font-size:14px;font-weight:700" id="gdBillTitle"></div>
-            <div style="font-size:12px;color:#888;margin-top:2px">Enter damaged boxes. Leave 0 if none.</div>
-          </div>
+          <div><div style="font-size:14px;font-weight:700" id="gdBillTitle"></div><div style="font-size:12px;color:#888;margin-top:2px">Enter damaged boxes. Leave 0 if none.</div></div>
           <div style="font-size:12px;color:#888" id="gdBillDate"></div>
         </div>
-        <table class="tbl">
-          <thead><tr>
-            <th>Item</th>
-            <th style="width:10%;text-align:center">Bill qty</th>
-            <th style="width:14%;text-align:center">Damaged</th>
-            <th style="width:30%">Notes</th>
-          </tr></thead>
-          <tbody id="gdTbody"></tbody>
-        </table>
+        <table class="tbl"><thead><tr><th style="width:45%">Item</th><th style="width:12%;text-align:center">Bill qty</th><th style="width:14%;text-align:center">Damaged boxes</th><th>Notes</th></tr></thead><tbody id="gdTbody"></tbody></table>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--border);margin-top:8px">
           <span style="font-size:12px;color:#888">Items with damage: <strong id="gdDmgCount" style="color:var(--red)">0</strong></span>
-          <button class="btn btn-red" id="gdSubmitBtn" disabled>Submit report &#8593;</button>
+          <button class="btn-primary" id="gdSubmitBtn" style="background:var(--red);opacity:.4">Submit report &#8593;</button>
         </div>
-        <div id="gdSuccess" style="display:none;background:var(--teal-l);border:1px solid #9FE1CB;border-radius:10px;padding:12px;text-align:center;margin-top:8px">
-          <strong style="color:var(--teal)">&#10003; Report submitted successfully</strong>
-        </div>
+        <div id="gdSuccess" style="display:none;background:var(--teal-l);border:1px solid #9FE1CB;border-radius:10px;padding:12px;text-align:center;margin-top:8px"><strong style="color:var(--teal)">&#10003; Report submitted</strong></div>
       </div>
     </div>
   </div>
-
-  <!-- SUPERVISOR -->
   <div class="page" id="page-supervisor">
-    <div class="tabs">
-      <button class="tab active" data-pane="supVerify">Verify &amp; Claim</button>
-      <button class="tab" data-pane="supDone">Completed</button>
+    <div class="tabs" id="supTabs">
+      <button class="tab active" data-tab="supVerify">Verify &amp; prepare claim</button>
+      <button class="tab" data-tab="supDone">Completed</button>
     </div>
-    <div class="pane active" id="supVerify"></div>
-    <div class="pane" id="supDone"></div>
+    <div class="tab-pane active" id="supVerify"></div>
+    <div class="tab-pane" id="supDone"></div>
   </div>
-
-  <!-- OWNER -->
   <div class="page" id="page-owner">
-    <div class="tabs">
-      <button class="tab active" data-pane="ownerApprove">Approve &amp; Send</button>
-      <button class="tab" data-pane="ownerResolve">Resolve</button>
-      <button class="tab" data-pane="ownerDash">Dashboard</button>
+    <div class="tabs" id="ownerTabs">
+      <button class="tab active" data-tab="ownerStep1">Send Email</button>
+      <button class="tab" data-tab="ownerStep2">Survey</button>
+      <button class="tab" data-tab="ownerStep3">Credit Note</button>
+      <button class="tab" data-tab="ownerMonth">By Month</button>
     </div>
-    <div class="pane active" id="ownerApprove"></div>
-    <div class="pane" id="ownerResolve"></div>
-    <div class="pane" id="ownerDash"></div>
+    <div class="tab-pane active" id="ownerStep1"></div>
+    <div class="tab-pane" id="ownerStep2"></div>
+    <div class="tab-pane" id="ownerStep3"></div>
+    <div class="tab-pane" id="ownerMonth"></div>
   </div>
-
 </div>
-
-<!-- MODAL -->
 <div class="modal-bg" id="modalBg">
   <div class="modal">
-    <h3 id="modalTitle"></h3>
-    <p id="modalDesc"></p>
-    <input type="text" class="inp" id="modalName" placeholder="Your name..." style="display:none"/>
-    <input type="password" class="inp pin" id="modalPin" placeholder="PIN" style="display:none"/>
-    <button class="btn" style="width:100%;margin-top:4px" id="modalOk">Continue</button>
-    <div class="modal-err" id="modalErr">Incorrect PIN. Try again.</div>
+    <h3 id="modalTitle">Enter details</h3><p id="modalDesc">Enter your name</p>
+    <input type="text" class="input-text" id="modalName" placeholder="Your name..." style="display:none;text-align:center"/>
+    <input type="password" class="pin-inp" id="modalPin" placeholder="PIN" style="display:none"/>
+    <button class="btn-primary" id="modalOk" style="width:100%;margin-top:4px">Continue</button>
+    <div class="modal-err" id="modalErr">Incorrect PIN</div>
     <span class="modal-cancel" id="modalCancel">Cancel</span>
   </div>
 </div>
-
 <script>
-// ── CONFIG ──────────────────────────────────────────────────
-var API = "https://script.google.com/macros/s/AKfycbzffAbw-tRwgFjTTcyoHqF9YcAxZMmjHGoLFJEvdUQ8OTx6hXq2PbH_3ow2JQTSKH7a/exec";
+var API="https://script.google.com/macros/s/AKfycbzffAbw-tRwgFjTTcyoHqF9YcAxZMmjHGoLFJEvdUQ8OTx6hXq2PbH_3ow2JQTSKH7a/exec";
+function apiGet(p){var qs=Object.keys(p).map(function(k){return encodeURIComponent(k)+"="+encodeURIComponent(p[k]);}).join("&");return fetch(API+"?"+qs).then(function(r){return r.json();});}
+function apiPost(b){return fetch(API,{method:"POST",body:JSON.stringify(b)}).then(function(r){return r.json();});}
 
-// ── STATE ───────────────────────────────────────────────────
-var currentRole = "", currentName = "", pendingRole = "";
-var gdBillRows = [], gdCurrentBill = "", gdCurrentDate = "";
-var supData = [], ownerData = [];
+var currentRole="",currentName="",pendingRole="";
+var gdBillRows=[],gdCurrentBill="",gdCurrentDate="";
+var supData=[],ownerData=[];
 
-// ── API HELPERS ─────────────────────────────────────────────
-function apiGet(params) {
-  var url = API + "?" + Object.keys(params).map(function(k){
-    return encodeURIComponent(k) + "=" + encodeURIComponent(params[k]);
-  }).join("&");
-  return fetch(url).then(function(r){return r.json();});
-}
-
-function apiPost(body) {
-  return fetch(API, {
-    method: "POST",
-    body: JSON.stringify(body)
-  }).then(function(r){return r.json();});
-}
-
-// ── INIT ─────────────────────────────────────────────────────
-window.addEventListener("load", function() {
-  document.getElementById("rc-godown").addEventListener("click", function(){openModal("godown");});
-  document.getElementById("rc-supervisor").addEventListener("click", function(){openModal("supervisor");});
-  document.getElementById("rc-owner").addEventListener("click", function(){openModal("owner");});
-  document.getElementById("modalOk").addEventListener("click", submitModal);
-  document.getElementById("modalCancel").addEventListener("click", closeModal);
-  document.getElementById("modalPin").addEventListener("keydown", function(e){if(e.key==="Enter")submitModal();});
-  document.getElementById("modalName").addEventListener("keydown", function(e){if(e.key==="Enter")submitModal();});
-  document.getElementById("gdLoadBtn").addEventListener("click", gdLoad);
-  document.getElementById("gdBillInput").addEventListener("keydown", function(e){if(e.key==="Enter")gdLoad();});
-  document.getElementById("gdSubmitBtn").addEventListener("click", gdSubmit);
-
-  // Tabs
-  document.querySelectorAll(".tab").forEach(function(tab) {
-    tab.addEventListener("click", function() {
-      var paneId = tab.dataset.pane;
-      var tabsEl = tab.closest(".tabs");
-      tabsEl.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active");});
-      tab.classList.add("active");
-      // Hide all sibling panes
-      var page = tabsEl.nextElementSibling;
-      while(page) { if(page.classList.contains("pane")) page.classList.remove("active"); page = page.nextElementSibling; }
-      var pane = document.getElementById(paneId);
-      if(pane) pane.classList.add("active");
-      // Render on demand
-      if(paneId==="supDone") renderSupDone();
-      if(paneId==="ownerApprove") renderOwnerPane("ownerApprove");
-      if(paneId==="ownerResolve") renderOwnerPane("ownerResolve");
-      if(paneId==="ownerDash") renderOwnerDash();
-    });
-  });
-
-  // Load bills for godown chips
+window.addEventListener("load",function(){
+  document.getElementById("rc-godown").addEventListener("click",function(){openModal("godown");});
+  document.getElementById("rc-supervisor").addEventListener("click",function(){openModal("supervisor");});
+  document.getElementById("rc-owner").addEventListener("click",function(){openModal("owner");});
+  document.getElementById("modalOk").addEventListener("click",submitModal);
+  document.getElementById("modalCancel").addEventListener("click",closeModal);
+  document.getElementById("modalPin").addEventListener("keydown",function(e){if(e.key==="Enter")submitModal();});
+  document.getElementById("modalName").addEventListener("keydown",function(e){if(e.key==="Enter")submitModal();});
+  document.getElementById("gdLoadBtn").addEventListener("click",gdLoad);
+  document.getElementById("gdBillInput").addEventListener("keydown",function(e){if(e.key==="Enter")gdLoad();});
+  document.getElementById("gdSubmitBtn").addEventListener("click",gdSubmit);
+  document.getElementById("supTabs").addEventListener("click",function(e){var btn=e.target.closest(".tab");if(!btn)return;switchTabs("supTabs",btn.dataset.tab);if(btn.dataset.tab==="supDone")renderSupDone();});
+  document.getElementById("ownerTabs").addEventListener("click",function(e){var btn=e.target.closest(".tab");if(!btn)return;switchTabs("ownerTabs",btn.dataset.tab);renderOwnerTab(btn.dataset.tab);});
   apiGet({action:"getBills"}).then(function(bills){
-    var chips = document.getElementById("gdChips");
-    chips.innerHTML = "";
+    var chips=document.getElementById("gdChips");
     if(!Array.isArray(bills)||!bills.length){chips.innerHTML="<span style='font-size:12px;color:#aaa'>No bills found</span>";return;}
-    bills.forEach(function(b){
-      var s = document.createElement("span");
-      s.className = "chip"; s.textContent = b;
-      s.addEventListener("click", function(){document.getElementById("gdBillInput").value=b; gdLoad();});
-      chips.appendChild(s);
-    });
-  }).catch(function(){
-    document.getElementById("gdChips").innerHTML = "<span style='font-size:12px;color:var(--red)'>Could not load bills</span>";
-  });
+    bills.forEach(function(b){var s=document.createElement("span");s.className="chip";s.textContent=b;s.addEventListener("click",function(){document.getElementById("gdBillInput").value=b;gdLoad();});chips.appendChild(s);});
+  }).catch(function(){document.getElementById("gdChips").innerHTML="<span style='font-size:12px;color:var(--red)'>Could not load bills</span>";});
 });
 
-function showPage(name) {
-  document.querySelectorAll(".page").forEach(function(p){p.classList.remove("active");});
-  document.getElementById("page-"+name).classList.add("active");
+function switchTabs(tabsId,activeTab){var tabs=document.getElementById(tabsId);tabs.querySelectorAll(".tab").forEach(function(t){t.classList.toggle("active",t.dataset.tab===activeTab);});document.querySelectorAll(".tab-pane").forEach(function(p){p.classList.toggle("active",p.id===activeTab);});}
+function showPage(name){document.querySelectorAll(".page").forEach(function(p){p.classList.remove("active");});document.getElementById("page-"+name).classList.add("active");}
+
+function openModal(role){
+  pendingRole=role;
+  document.getElementById("modalErr").style.display="none";
+  document.getElementById("modalTitle").textContent=role==="godown"?"Godown Incharge":role==="supervisor"?"Supervisor":"Owner";
+  document.getElementById("modalDesc").textContent=role==="godown"?"Enter your name to continue":"Enter your PIN to continue";
+  var ni=document.getElementById("modalName"),pi=document.getElementById("modalPin");
+  ni.style.display=role==="godown"?"block":"none";pi.style.display=role==="godown"?"none":"block";
+  ni.value="";pi.value="";
+  document.getElementById("modalBg").classList.add("show");
+  setTimeout(function(){(role==="godown"?ni:pi).focus();},100);
 }
-
-// ── MODAL ────────────────────────────────────────────────────
-function openModal(role) {
-  pendingRole = role;
-  document.getElementById("modalErr").style.display = "none";
-  document.getElementById("modalTitle").textContent = role==="godown"?"Godown Incharge":role==="supervisor"?"Supervisor":"Owner";
-  document.getElementById("modalDesc").textContent  = role==="godown"?"Enter your name to continue":"Enter your PIN to continue";
-  var nameEl = document.getElementById("modalName");
-  var pinEl  = document.getElementById("modalPin");
-  nameEl.style.display = role==="godown" ? "block" : "none";
-  pinEl.style.display  = role==="godown" ? "none"  : "block";
-  nameEl.value=""; pinEl.value="";
-  document.getElementById("modalBg").classList.add("open");
-  setTimeout(function(){(role==="godown"?nameEl:pinEl).focus();},120);
-}
-
-function closeModal(){ document.getElementById("modalBg").classList.remove("open"); }
-
-function submitModal() {
-  if(pendingRole==="godown"){
-    var name = document.getElementById("modalName").value.trim();
-    if(!name) return;
-    currentName=name; currentRole="godown"; activateRole();
-  } else {
-    var pin = document.getElementById("modalPin").value.trim();
-    var btn = document.getElementById("modalOk");
-    btn.disabled=true; btn.textContent="Checking...";
-    apiGet({action:"checkPin", pin:pin, role:pendingRole}).then(function(ok){
-      btn.disabled=false; btn.textContent="Continue";
-      if(ok===true||ok==="true"){currentRole=pendingRole; currentName=pendingRole==="supervisor"?"Supervisor":"Owner"; activateRole();}
-      else {document.getElementById("modalErr").style.display="block"; document.getElementById("modalPin").value="";}
-    }).catch(function(){btn.disabled=false; btn.textContent="Continue"; alert("Network error. Try again.");});
+function closeModal(){document.getElementById("modalBg").classList.remove("show");}
+function submitModal(){
+  if(pendingRole==="godown"){var name=document.getElementById("modalName").value.trim();if(!name)return;currentName=name;currentRole="godown";activateRole();}
+  else{
+    var pin=document.getElementById("modalPin").value.trim();
+    var btn=document.getElementById("modalOk");btn.disabled=true;btn.textContent="Checking...";
+    apiGet({action:"checkPin",pin:pin,role:pendingRole}).then(function(ok){
+      btn.disabled=false;btn.textContent="Continue";
+      if(ok===true||ok==="true"){currentRole=pendingRole;currentName=pendingRole==="supervisor"?"Supervisor":"Owner";activateRole();}
+      else{document.getElementById("modalErr").style.display="block";document.getElementById("modalPin").value="";}
+    }).catch(function(){btn.disabled=false;btn.textContent="Continue";alert("Network error. Try again.");});
   }
 }
-
-function activateRole() {
+function activateRole(){
   closeModal();
-  var badge = document.getElementById("roleBadge");
-  badge.textContent = currentName;
-  badge.className = "role-badge role-"+currentRole;
-  badge.style.display = "inline-block";
-  document.getElementById("changeBtn").style.display = "block";
+  var badge=document.getElementById("roleBadge");badge.textContent=currentName;badge.className="role-badge role-"+currentRole;badge.style.display="inline-block";
+  document.getElementById("logoutBtn").style.display="block";
   showPage(currentRole);
-  if(currentRole==="supervisor") loadSupData();
-  if(currentRole==="owner") loadOwnerData();
+  if(currentRole==="supervisor")loadSupData();
+  if(currentRole==="owner")loadOwnerData();
 }
+function logout(){currentRole="";currentName="";document.getElementById("roleBadge").style.display="none";document.getElementById("logoutBtn").style.display="none";showPage("role");}
 
-function logout(){
-  currentRole=""; currentName="";
-  document.getElementById("roleBadge").style.display="none";
-  document.getElementById("changeBtn").style.display="none";
-  showPage("role");
-}
-
-// ── GODOWN ───────────────────────────────────────────────────
-function gdLoad() {
-  var bill = document.getElementById("gdBillInput").value.trim();
-  if(!bill) return;
-  gdCurrentBill = bill;
-  showPill("gdPill","loading","Loading...");
-  apiGet({action:"getBillItems", bill:bill}).then(function(data){
+// GODOWN
+function gdLoad(){
+  var bill=document.getElementById("gdBillInput").value.trim();if(!bill)return;
+  gdCurrentBill=bill;showPill("gdPill","loading","Loading...");
+  apiGet({action:"getBillItems",bill:bill}).then(function(data){
     if(!data||!data.items||!data.items.length){showPill("gdPill","err","Bill not found");return;}
-    gdBillRows=data.items; gdCurrentDate=data.date;
-    // Get previous breakages for this bill
-    return apiGet({action:"getByBill", bill:bill}).then(function(prev){
-      renderGdPrev(prev||[]);
-      renderGdTable(data.items, prev||[]);
-      document.getElementById("gdBillTitle").textContent = "Invoice: "+bill;
-      document.getElementById("gdBillDate").textContent  = data.date;
-      document.getElementById("gdFlow").style.display = "block";
-      document.getElementById("gdSuccess").style.display = "none";
-      document.getElementById("gdSubmitBtn").disabled = true;
+    gdBillRows=data.items;gdCurrentDate=data.date;
+    return apiGet({action:"getByBill",bill:bill}).then(function(prev){
+      renderGdPrev(prev||[]);renderGdTable(data.items,prev||[]);
+      document.getElementById("gdBillTitle").textContent="Invoice: "+bill;
+      document.getElementById("gdBillDate").textContent=data.date;
+      document.getElementById("gdFlow").style.display="block";
+      document.getElementById("gdSuccess").style.display="none";
+      document.getElementById("gdSubmitBtn").style.opacity=".4";
       showPill("gdPill","ok",data.items.length+" items loaded");
     });
   }).catch(function(e){showPill("gdPill","err","Error: "+e.message);});
 }
-
-function renderGdPrev(prev) {
-  var wrap = document.getElementById("gdPrevWrap");
-  if(!prev.length){wrap.style.display="none";return;}
-  wrap.style.display="block"; wrap.innerHTML="";
-  var div = document.createElement("div"); div.className="prev-wrap";
-  var title = document.createElement("div"); title.className="prev-title"; title.textContent="Previously submitted for this bill";
-  div.appendChild(title);
+function renderGdPrev(prev){
+  var wrap=document.getElementById("gdPrevWrap");if(!prev||!prev.length){wrap.style.display="none";return;}
+  wrap.style.display="block";wrap.innerHTML="";
+  var div=document.createElement("div");div.className="prev-banner";
+  var title=document.createElement("strong");title.textContent="Previously submitted for this bill";div.appendChild(title);
   prev.forEach(function(p){
-    var row=document.createElement("div");
-    row.style.cssText="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f5e07a;font-size:12px";
+    var row=document.createElement("div");row.style.cssText="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f5c842;font-size:12px";
     var locked=p.status!=="Reported";
-    row.innerHTML="<span><strong>"+p.item+"</strong> — "+p.boxesDamaged+" boxes"+(p.notes?" ("+p.notes+")":"")+"</span>"+
-      "<span>"+statusBadge(p.status)+(locked?" &#128274;":"")+"</span>";
+    row.innerHTML="<span><strong>"+p.item+"</strong> — "+p.boxesDamaged+" boxes"+(p.notes?" ("+p.notes+")":"")+"</span><span>"+statusBadge(p.status)+(locked?" <span style='font-size:10px;color:var(--red)'>&#128274;</span>":"")+"</span>";
     div.appendChild(row);
   });
   wrap.appendChild(div);
 }
-
-function renderGdTable(items, prev) {
-  var tbody=document.getElementById("gdTbody"); tbody.innerHTML="";
+function renderGdTable(items,prev){
+  var tbody=document.getElementById("gdTbody");tbody.innerHTML="";
   items.forEach(function(r,i){
     var ex=(prev||[]).find(function(p){return p.item.trim()===r.item.trim();});
-    var locked=ex&&ex.status!=="Reported";
-    var prevBoxes=ex?ex.boxesDamaged:0;
-    var prevNotes=ex?(ex.notes||""):"";
+    var locked=ex&&ex.status!=="Reported";var prevBoxes=ex?ex.boxesDamaged:0;var prevNotes=ex?(ex.notes||""):"";
     var tr=document.createElement("tr");
-    // Item name
     var td0=document.createElement("td");
-    td0.innerHTML="<div style='font-size:12px;font-weight:600'>"+r.item+"</div>"+
-      (ex&&!locked?"<div style='font-size:10px;color:var(--teal);margin-top:2px'>&#10003; Editable</div>":"")+
-      (locked?"<div style='font-size:10px;color:var(--red);margin-top:2px'>&#128274; Verified</div>":"");
+    td0.innerHTML="<div style='font-size:12px;font-weight:600'>"+r.item+"</div>"+(ex&&!locked?"<div style='font-size:10px;color:var(--teal);margin-top:2px'>&#10003; Previously submitted — editable</div>":"")+(locked?"<div style='font-size:10px;color:var(--red);margin-top:2px'>&#128274; Verified — cannot edit</div>":"");
     tr.appendChild(td0);
-    // Bill qty
-    var td1=document.createElement("td"); td1.style.cssText="text-align:center;color:#888;font-size:12px"; td1.textContent=r.qty; tr.appendChild(td1);
-    // Damaged input
-    var td2=document.createElement("td"); td2.style.textAlign="center";
-    var inp=document.createElement("input"); inp.type="number"; inp.className="inp-num";
-    inp.min="0"; inp.value=String(prevBoxes); inp.id="dmg-"+i; inp.disabled=locked;
-    inp.addEventListener("input",updateDmgCount);
-    td2.appendChild(inp); tr.appendChild(td2);
-    // Notes
+    var td1=document.createElement("td");td1.style.cssText="text-align:center;color:#888;font-size:12px";td1.textContent=r.qty;tr.appendChild(td1);
+    var td2=document.createElement("td");td2.style.textAlign="center";
+    var numInp=document.createElement("input");numInp.type="number";numInp.className="inp-num";numInp.style.width="72px";numInp.style.textAlign="center";numInp.min="0";numInp.value=String(prevBoxes);numInp.disabled=locked;numInp.id="dmg-"+i;
+    if(prevBoxes>0&&!locked)numInp.style.background="#fff5f5";
+    numInp.addEventListener("input",function(){updateDmgCount();});td2.appendChild(numInp);tr.appendChild(td2);
     var td3=document.createElement("td");
-    var note=document.createElement("input"); note.type="text"; note.className="inp-sm"; note.style.width="100%";
-    note.placeholder="Optional..."; note.value=prevNotes; note.id="note-"+i; note.disabled=locked;
-    if(locked) note.style.background="#f5f5f5";
-    td3.appendChild(note); tr.appendChild(td3);
-    tbody.appendChild(tr);
+    var noteInp=document.createElement("input");noteInp.type="text";noteInp.className="inp-text";noteInp.placeholder="Optional remark...";noteInp.value=prevNotes;noteInp.disabled=locked;noteInp.id="note-"+i;
+    if(locked)noteInp.style.background="#f5f5f5";td3.appendChild(noteInp);tr.appendChild(td3);tbody.appendChild(tr);
   });
   updateDmgCount();
 }
-
-function updateDmgCount() {
-  var count=0;
-  gdBillRows.forEach(function(r,i){
-    var el=document.getElementById("dmg-"+i);
-    if(el&&!el.disabled&&parseFloat(el.value||0)>0) count++;
-  });
-  document.getElementById("gdDmgCount").textContent=count;
-  document.getElementById("gdSubmitBtn").disabled=count===0;
+function updateDmgCount(){
+  var count=0;gdBillRows.forEach(function(r,i){var el=document.getElementById("dmg-"+i);if(el&&!el.disabled&&parseFloat(el.value||0)>0)count++;});
+  document.getElementById("gdDmgCount").textContent=count;document.getElementById("gdSubmitBtn").style.opacity=count>0?"1":".4";
 }
-
-function gdSubmit() {
+function gdSubmit(){
   var entries=[];
-  gdBillRows.forEach(function(r,i){
-    var el=document.getElementById("dmg-"+i);
-    if(!el||el.disabled) return;
-    var boxes=parseFloat(el.value||0);
-    if(boxes>0) entries.push({item:r.item, boxesDamaged:boxes, notes:(document.getElementById("note-"+i)||{}).value||""});
-  });
-  if(!entries.length) return;
-  var btn=document.getElementById("gdSubmitBtn");
-  btn.disabled=true; btn.textContent="Submitting...";
-  apiPost({action:"saveReport", billNumber:gdCurrentBill, billDate:gdCurrentDate, entries:entries, reportedBy:currentName})
-    .then(function(){
-      btn.textContent="&#10003; Submitted"; btn.style.background="var(--teal)";
-      document.getElementById("gdSuccess").style.display="block";
-    })
-    .catch(function(e){btn.disabled=false; btn.textContent="Submit report &#8593;"; alert("Error: "+e.message);});
+  gdBillRows.forEach(function(r,i){var el=document.getElementById("dmg-"+i);if(!el||el.disabled)return;var boxes=parseFloat(el.value||0);if(boxes>0)entries.push({item:r.item,boxesDamaged:boxes,notes:(document.getElementById("note-"+i)||{}).value||""});});
+  if(!entries.length)return;
+  var btn=document.getElementById("gdSubmitBtn");btn.textContent="Submitting...";btn.style.opacity=".4";
+  apiPost({action:"saveReport",billNumber:gdCurrentBill,billDate:gdCurrentDate,entries:entries,reportedBy:currentName})
+    .then(function(){btn.textContent="&#10003; Submitted";btn.style.opacity="1";btn.style.background="var(--teal)";document.getElementById("gdSuccess").style.display="block";})
+    .catch(function(e){btn.textContent="Submit report &#8593;";updateDmgCount();alert("Error: "+e.message);});
 }
 
-// ── SUPERVISOR ───────────────────────────────────────────────
-function loadSupData() {
-  document.getElementById("supVerify").innerHTML="<div class='empty'><span class='spinner'></span> Loading...</div>";
-  apiGet({action:"getAll"}).then(function(data){
-    supData=data||[]; renderSupVerify();
-  }).catch(function(e){document.getElementById("supVerify").innerHTML="<div class='empty' style='color:var(--red)'>Error: "+e.message+"</div>";});
+// SUPERVISOR
+function loadSupData(){
+  document.getElementById("supVerify").innerHTML="<div class='empty-state'><span class='spinner'></span> Loading...</div>";
+  apiGet({action:"getAll"}).then(function(data){supData=data||[];renderSupVerify();})
+    .catch(function(e){document.getElementById("supVerify").innerHTML="<div class='empty-state' style='color:var(--red)'>Error: "+e.message+"</div>";});
 }
-
-function renderSupVerify() {
+function renderSupVerify(){
   var container=document.getElementById("supVerify");
   var pending=supData.filter(function(b){return b.status==="Reported";});
-  if(!pending.length){container.innerHTML="<div class='empty'>No pending reports</div>";return;}
+  if(!pending.length){container.innerHTML="<div class='empty-state'>No pending reports</div>";return;}
   container.innerHTML="";
+  var masterBar=document.createElement("div");masterBar.className="master-bar";
+  masterBar.innerHTML="<div style='display:flex;align-items:center;gap:12px;flex-wrap:wrap'><div style='flex:1'><div style='font-size:13px;font-weight:700;color:var(--purple)'>Breakage tracking code</div><div style='font-size:11px;color:#666;margin-top:2px'>Auto-generated — edit if needed &nbsp;&middot;&nbsp; <span style='color:var(--purple)'>Tick items in Completed tab to re-include them</span></div></div><input type='text' id='masterInvNo' class='inp-text' style='width:200px'/></div>";
+  var genBtn=document.createElement("button");genBtn.className="btn-primary";genBtn.style.cssText="background:var(--purple);margin-top:10px;width:100%";genBtn.textContent="Generate claim summary";genBtn.addEventListener("click",supGenerate);masterBar.appendChild(genBtn);container.appendChild(masterBar);
+  var d=new Date(),dd=String(d.getDate()).padStart(2,"0"),mm=String(d.getMonth()+1).padStart(2,"0"),yy=String(d.getFullYear()).slice(-2);
+  var seq=String((supData.filter(function(b){return b.status!=="Reported";}).length)+1).padStart(3,"0");
+  var codeEl=document.getElementById("masterInvNo");if(codeEl&&!codeEl.value)codeEl.value="BRK-"+dd+mm+yy+"-"+seq;
 
-  // Master bar
-  var bar=document.createElement("div"); bar.className="master-bar";
-  bar.innerHTML="<div style='display:flex;align-items:center;gap:10px;flex-wrap:wrap'>"+
-    "<div style='flex:1'><div style='font-size:13px;font-weight:700;color:var(--purple)'>Claim invoice number</div>"+
-    "<div style='font-size:11px;color:#666;margin-top:2px'>Raise in Zoho first, enter number here</div></div>"+
-    "<input type='text' id='masterInvNo' class='inp-sm' placeholder='e.g. INV-2026-001' style='width:200px'/>"+
-    "</div>";
-  var genBtn=document.createElement("button"); genBtn.className="btn btn-purple"; genBtn.style.cssText="width:100%;margin-top:10px";
-  genBtn.textContent="Generate claim summary"; genBtn.addEventListener("click",supGenerate);
-  bar.appendChild(genBtn); container.appendChild(bar);
-
-  // Group by bill
-  var byBill={}, order=[];
-  pending.forEach(function(b){if(!byBill[b.billNumber]){byBill[b.billNumber]=[];order.push(b.billNumber);}byBill[b.billNumber].push(b);});
-
-  order.forEach(function(bill){
-    var items=byBill[bill];
-    var card=document.createElement("div"); card.className="card";
-
-    // Header
-    var hdr=document.createElement("div"); hdr.style.cssText="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px";
-    hdr.innerHTML="<div><div style='font-size:13px;font-weight:700'>Invoice: "+bill+"</div>"+
-      "<div style='font-size:11px;color:#888;margin-top:2px'>By: "+items[0].reportedBy+" &middot; "+items[0].reportedAt+"</div></div>";
-    var selAll=document.createElement("button"); selAll.style.cssText="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);cursor:pointer";
-    selAll.textContent="Select all";
-    selAll.addEventListener("click", function(){
-      items.forEach(function(b){var c=document.getElementById("chk-"+b.id);if(c&&!c.checked){c.checked=true;toggleRow(b.id);}});
-    });
-    hdr.appendChild(selAll); card.appendChild(hdr);
-
-    // Table
-    var tbl=document.createElement("table"); tbl.className="tbl";
-    tbl.innerHTML="<thead><tr>"+
-      "<th style='width:4%'></th>"+
-      "<th>Product</th>"+
-      "<th style='width:11%;text-align:center'>Reported</th>"+
-      "<th style='width:12%;text-align:center'>Claim qty</th>"+
-      "<th style='width:14%;text-align:center'>Price/box</th>"+
-      "<th style='width:13%;text-align:right'>Total</th>"+
-      "</tr></thead>";
+  var byBill={},billOrder=[];
+  pending.forEach(function(b){if(!byBill[b.billNumber]){byBill[b.billNumber]=[];billOrder.push(b.billNumber);}byBill[b.billNumber].push(b);});
+  billOrder.forEach(function(bill){
+    var items=byBill[bill];var card=document.createElement("div");card.className="card";
+    var hdr=document.createElement("div");hdr.style.cssText="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px";
+    hdr.innerHTML="<div><div style='font-size:13px;font-weight:700'>Invoice: "+bill+"</div><div style='font-size:11px;color:#888;margin-top:2px'>By: "+items[0].reportedBy+" &middot; "+items[0].reportedAt+"</div></div>";
+    var selAll=document.createElement("button");selAll.style.cssText="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);cursor:pointer";selAll.textContent="Select all";
+    selAll.addEventListener("click",function(){items.forEach(function(b){var c=document.getElementById("chk-"+b.id);if(c&&!c.checked){c.checked=true;toggleRow(b.id);}});});
+    hdr.appendChild(selAll);card.appendChild(hdr);
+    var tbl=document.createElement("table");tbl.className="tbl";
+    tbl.innerHTML="<thead><tr><th style='width:4%'></th><th>Product</th><th style='width:11%;text-align:center'>Reported</th><th style='width:13%;text-align:center'>Claim qty</th><th style='width:15%;text-align:center'>Price/box (Rs)</th><th style='width:14%;text-align:right'>Total (Rs)</th></tr></thead>";
     var tbody=document.createElement("tbody");
-
     items.forEach(function(b){
-      var tr=document.createElement("tr"); tr.id="str-"+b.id;
-
-      var tc=document.createElement("td"); tc.style.cssText="padding:7px;text-align:center";
-      var chk=document.createElement("input"); chk.type="checkbox"; chk.id="chk-"+b.id;
-      chk.style.cssText="width:15px;height:15px;cursor:pointer";
-      chk.addEventListener("change",function(){toggleRow(b.id);}); tc.appendChild(chk); tr.appendChild(tc);
-
-      var ti=document.createElement("td"); ti.style.padding="7px 8px";
-      ti.innerHTML="<div style='font-size:12px;font-weight:600'>"+b.item+"</div>"+
-        (b.notes?"<div style='font-size:11px;color:#888'>"+b.notes+"</div>":"");
-      tr.appendChild(ti);
-
-      var tr2=document.createElement("td"); tr2.style.cssText="text-align:center;font-weight:700;color:var(--red);padding:7px"; tr2.textContent=b.boxesDamaged; tr.appendChild(tr2);
-
-      var tq=document.createElement("td"); tq.style.cssText="text-align:center;padding:7px";
-      var qInp=document.createElement("input"); qInp.type="number"; qInp.className="inp-num";
-      qInp.id="cqty-"+b.id; qInp.value=String(b.boxesDamaged); qInp.min="0"; qInp.disabled=true;
-      qInp.addEventListener("input",function(){calcRow(b.id);}); tq.appendChild(qInp); tr.appendChild(tq);
-
-      var tp=document.createElement("td"); tp.style.cssText="text-align:center;padding:7px";
-      var pInp=document.createElement("input"); pInp.type="number"; pInp.className="inp-num inp-price";
-      pInp.id="cprice-"+b.id; pInp.placeholder="0"; pInp.min="0"; pInp.disabled=true;
-      pInp.addEventListener("input",function(){calcRow(b.id);}); tp.appendChild(pInp); tr.appendChild(tp);
-
-      var tt=document.createElement("td"); tt.style.cssText="text-align:right;font-weight:600;color:var(--teal);padding:7px";
-      tt.id="ctot-"+b.id; tt.textContent="—"; tr.appendChild(tt);
-
+      var tr=document.createElement("tr");tr.id="sup-tr-"+b.id;tr.style.borderBottom="1px solid #f0f0f0";
+      var tc=document.createElement("td");tc.style.cssText="padding:7px;text-align:center";var chk=document.createElement("input");chk.type="checkbox";chk.id="chk-"+b.id;chk.style.cssText="width:15px;height:15px;cursor:pointer";chk.addEventListener("change",function(){toggleRow(b.id);});tc.appendChild(chk);tr.appendChild(tc);
+      var ti=document.createElement("td");ti.style.padding="7px 8px";ti.innerHTML="<div style='font-size:12px;font-weight:600'>"+b.item+"</div>"+(b.notes?"<div style='font-size:11px;color:#888'>"+b.notes+"</div>":"");tr.appendChild(ti);
+      var tr2=document.createElement("td");tr2.style.cssText="text-align:center;font-weight:700;color:var(--red);padding:7px";tr2.textContent=b.boxesDamaged;tr.appendChild(tr2);
+      var tq=document.createElement("td");tq.style.cssText="text-align:center;padding:7px";var qInp=document.createElement("input");qInp.type="number";qInp.className="inp-num";qInp.style.width="68px";qInp.style.textAlign="center";qInp.id="cqty-"+b.id;qInp.value=String(b.claimedQty||b.boxesDamaged);qInp.min="0";qInp.disabled=true;qInp.addEventListener("input",function(){calcRow(b.id);});tq.appendChild(qInp);tr.appendChild(tq);
+      var tp=document.createElement("td");tp.style.cssText="text-align:center;padding:7px";var pInp=document.createElement("input");pInp.type="number";pInp.className="inp-num";pInp.style.cssText="width:85px;text-align:right";pInp.id="cprice-"+b.id;var sp=parseFloat(b.creditAmount)||0;if(sp>0)pInp.value=sp;else pInp.placeholder="0";pInp.min="0";pInp.disabled=true;pInp.addEventListener("input",function(){calcRow(b.id);});tp.appendChild(pInp);tr.appendChild(tp);
+      var tt=document.createElement("td");tt.style.cssText="text-align:right;font-weight:600;color:var(--teal);padding:7px";tt.id="ctotal-"+b.id;tt.textContent="—";tr.appendChild(tt);
       tbody.appendChild(tr);
     });
-    tbl.appendChild(tbody); card.appendChild(tbl); container.appendChild(card);
+    tbl.appendChild(tbody);card.appendChild(tbl);container.appendChild(card);
   });
-
-  // Output
-  var out=document.createElement("div"); out.id="supOut"; out.style.display="none"; out.className="card";
-  out.innerHTML="<div style='font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--purple);margin-bottom:8px'>Claim summary</div>"+
-    "<div id='supEmailText' class='email-box'></div>";
-  var btnRow=document.createElement("div"); btnRow.style.cssText="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap";
-  var cBtn=document.createElement("button"); cBtn.className="copy-btn"; cBtn.textContent="Copy to clipboard"; cBtn.addEventListener("click",supCopy);
-  var sBtn=document.createElement("button"); sBtn.className="btn btn-sm"; sBtn.style.background="var(--teal-m)"; sBtn.textContent="Save & mark invoice raised"; sBtn.addEventListener("click",supSave);
-  btnRow.appendChild(cBtn); btnRow.appendChild(sBtn); out.appendChild(btnRow); container.appendChild(out);
+  var outDiv=document.createElement("div");outDiv.id="supOut";outDiv.style.display="none";outDiv.className="card";
+  outDiv.innerHTML="<div style='font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--purple);margin-bottom:8px'>Claim summary — copy and email to owner</div><div id='supEmailText' class='email-draft'></div>";
+  var btnRow=document.createElement("div");btnRow.style.cssText="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap";
+  var copyBtn=document.createElement("button");copyBtn.className="copy-btn";copyBtn.textContent="Copy to clipboard";copyBtn.addEventListener("click",supCopy);
+  var saveBtn=document.createElement("button");saveBtn.className="btn-primary";saveBtn.style.cssText="font-size:12px;height:32px;background:var(--teal-m)";saveBtn.textContent="Save & mark invoice raised";saveBtn.addEventListener("click",supSave);
+  btnRow.appendChild(copyBtn);btnRow.appendChild(saveBtn);outDiv.appendChild(btnRow);container.appendChild(outDiv);
 }
-
 function toggleRow(id){
-  var chk=document.getElementById("chk-"+id);
-  var qEl=document.getElementById("cqty-"+id); var pEl=document.getElementById("cprice-"+id);
-  var on=chk&&chk.checked;
+  var chk=document.getElementById("chk-"+id),qEl=document.getElementById("cqty-"+id),pEl=document.getElementById("cprice-"+id),on=chk&&chk.checked;
   if(qEl){qEl.disabled=!on;qEl.style.background=on?"#fff":"#f5f5f5";qEl.style.color=on?"#1a1a1a":"#aaa";}
   if(pEl){pEl.disabled=!on;pEl.style.background=on?"#fff":"#f5f5f5";pEl.style.color=on?"#1a1a1a":"#aaa";}
-  var tot=document.getElementById("ctot-"+id); if(tot) tot.textContent=on?"0.00":"—";
-  if(on) calcRow(id);
+  var tot=document.getElementById("ctotal-"+id);if(tot)tot.textContent=on?"0.00":"—";if(on)calcRow(id);
 }
-
 function calcRow(id){
-  var qty=parseFloat((document.getElementById("cqty-"+id)||{}).value||0)||0;
-  var price=parseFloat((document.getElementById("cprice-"+id)||{}).value||0)||0;
-  var tot=document.getElementById("ctot-"+id);
-  if(tot) tot.textContent=qty*price>0?"Rs "+(qty*price).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2}):"0.00";
+  var qty=parseFloat((document.getElementById("cqty-"+id)||{}).value||0)||0,price=parseFloat((document.getElementById("cprice-"+id)||{}).value||0)||0;
+  var tot=document.getElementById("ctotal-"+id);if(tot)tot.textContent=qty*price>0?"Rs "+(qty*price).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2}):"0.00";
 }
-
-function rpad(s,n){s=String(s||"");while(s.length<n)s=s+" ";return s.substring(0,n);}
-function lpad(s,n){s=String(s||"");while(s.length<n)s=" "+s;return s.length>n?s.substring(s.length-n):s;}
-
 function supGenerate(){
-  var invNo=(document.getElementById("masterInvNo")||{}).value||""; invNo=invNo.trim();
+  var invNo=(document.getElementById("masterInvNo")||{}).value||"";invNo=invNo.trim();
   var pending=supData.filter(function(b){return b.status==="Reported";});
-  var selected=pending.filter(function(b){var c=document.getElementById("chk-"+b.id);return c&&c.checked;});
-  if(!selected.length){alert("Select at least one item");return;}
-  if(!invNo){var el=document.getElementById("masterInvNo");if(el){el.focus();el.style.borderColor="var(--red)";}alert("Enter claim invoice number first");return;}
-
-  var lines=[],grand=0,sep="-".repeat(90);
-  lines.push("BREAKAGE CLAIM");
-  lines.push("Claim Invoice No : "+invNo);
-  lines.push("Prepared by      : "+currentName);
-  lines.push("Date             : "+new Date().toLocaleDateString("en-IN"));
-  lines.push(""); lines.push(sep);
-  lines.push(rpad("Invoice No",20)+"  "+rpad("Product",34)+"  "+lpad("Qty",5)+"  "+lpad("Price/Box",11)+"  "+lpad("Total (Rs)",12));
-  lines.push(sep);
+  var fromPending=pending.filter(function(b){var c=document.getElementById("chk-"+b.id);return c&&c.checked;});
+  var editable=supData.filter(function(b){return b.status==="Claim Invoice Raised";});
+  var fromDone=editable.filter(function(b){var c=document.getElementById("rechk-"+b.id);return c&&c.checked;});
+  var selected=fromPending.concat(fromDone);
+  if(!selected.length){alert("Please select at least one item\n\nTip: Tick items in the Completed tab to re-include them");return;}
+  if(!invNo){var el=document.getElementById("masterInvNo");if(el){el.focus();el.style.borderColor="var(--red)";}alert("Please enter tracking code first");return;}
+  var TAB="\t",NL="\n",rows=[],grand=0;
+  rows.push("Breakage Claim Summary");rows.push("Tracking Code\t"+invNo);rows.push("Prepared by\t"+currentName);rows.push("Date\t"+new Date().toLocaleDateString("en-IN"));rows.push("");
+  rows.push(["Invoice No","Product","Claim Qty","Price / Box (Rs)","Total (Rs)"].join(TAB));
   selected.forEach(function(b){
-    var qty=parseFloat((document.getElementById("cqty-"+b.id)||{}).value||0)||0;
-    var price=parseFloat((document.getElementById("cprice-"+b.id)||{}).value||0)||0;
-    var total=qty*price; grand+=total;
-    lines.push(rpad(b.billNumber,20)+"  "+rpad(b.item.length>34?b.item.substring(0,32)+"..":b.item,34)+"  "+lpad(String(qty),5)+"  "+lpad("Rs "+price.toFixed(2),11)+"  "+lpad("Rs "+total.toFixed(2),12));
+    var qtyEl=document.getElementById("cqty-"+b.id)||document.getElementById("edit-qty-"+b.id);
+    var priceEl=document.getElementById("cprice-"+b.id)||document.getElementById("edit-price-"+b.id);
+    var qty=parseFloat((qtyEl||{}).value||0)||0,price=parseFloat((priceEl||{}).value||0)||0,total=qty*price;grand+=total;
+    rows.push([b.billNumber,b.item,qty,price.toFixed(2),total.toFixed(2)].join(TAB));
   });
-  lines.push(sep);
-  lines.push(rpad("",20)+"  "+rpad("GRAND TOTAL",34)+"  "+lpad("",5)+"  "+lpad("",11)+"  "+lpad("Rs "+grand.toFixed(2),12));
-  lines.push(""); lines.push("Please process as credit note against our next invoice.");
-
-  var emailEl=document.getElementById("supEmailText"); var outEl=document.getElementById("supOut");
-  if(emailEl) emailEl.textContent=lines.join("\n");
-  if(outEl) outEl.style.display="block";
+  rows.push(["","GRAND TOTAL","","",grand.toFixed(2)].join(TAB));rows.push("");rows.push("Please process as credit note against our next invoice.");
+  var emailEl=document.getElementById("supEmailText"),outEl=document.getElementById("supOut");
+  if(emailEl){
+    emailEl.innerHTML="";
+    var info=document.createElement("div");info.style.cssText="font-size:12px;color:#555;margin-bottom:10px;line-height:1.7";
+    info.innerHTML="<strong>Breakage Claim Summary</strong><br>Tracking Code: <strong>"+invNo+"</strong> &nbsp;&middot;&nbsp; "+currentName+" &nbsp;&middot;&nbsp; "+new Date().toLocaleDateString("en-IN");emailEl.appendChild(info);
+    var tbl=document.createElement("table");tbl.style.cssText="width:100%;border-collapse:collapse;font-size:12px";
+    tbl.innerHTML="<thead><tr style='background:var(--bg2)'><th style='padding:7px 10px;text-align:left;border:1px solid var(--border)'>Invoice No</th><th style='padding:7px 10px;text-align:left;border:1px solid var(--border)'>Product</th><th style='padding:7px 10px;text-align:right;border:1px solid var(--border)'>Claim Qty</th><th style='padding:7px 10px;text-align:right;border:1px solid var(--border)'>Price/Box (Rs)</th><th style='padding:7px 10px;text-align:right;border:1px solid var(--border)'>Total (Rs)</th></tr></thead>";
+    var tbody=document.createElement("tbody");
+    selected.forEach(function(b){
+      var qe=document.getElementById("cqty-"+b.id)||document.getElementById("edit-qty-"+b.id);
+      var pe=document.getElementById("cprice-"+b.id)||document.getElementById("edit-price-"+b.id);
+      var qty=parseFloat((qe||{}).value||0)||0,price=parseFloat((pe||{}).value||0)||0,total=qty*price;
+      var tr=document.createElement("tr");
+      tr.innerHTML="<td style='padding:7px 10px;border:1px solid var(--border)'>"+b.billNumber+"</td><td style='padding:7px 10px;border:1px solid var(--border)'>"+b.item+"</td><td style='padding:7px 10px;border:1px solid var(--border);text-align:right'>"+qty+"</td><td style='padding:7px 10px;border:1px solid var(--border);text-align:right'>"+price.toFixed(2)+"</td><td style='padding:7px 10px;border:1px solid var(--border);text-align:right;font-weight:600'>"+total.toFixed(2)+"</td>";
+      tbody.appendChild(tr);
+    });
+    var gtr=document.createElement("tr");gtr.style.background="var(--teal-l)";
+    gtr.innerHTML="<td style='padding:7px 10px;border:1px solid var(--border)'></td><td style='padding:7px 10px;border:1px solid var(--border);font-weight:700'>GRAND TOTAL</td><td style='padding:7px 10px;border:1px solid var(--border)'></td><td style='padding:7px 10px;border:1px solid var(--border)'></td><td style='padding:7px 10px;border:1px solid var(--border);text-align:right;font-weight:700;color:var(--teal)'>Rs "+grand.toFixed(2)+"</td>";
+    tbody.appendChild(gtr);tbl.appendChild(tbody);emailEl.appendChild(tbl);
+  }
+  if(outEl)outEl.style.display="block";
 }
-
 function supCopy(){
-  var el=document.getElementById("supEmailText"); if(!el) return;
-  if(navigator.clipboard){navigator.clipboard.writeText(el.textContent).then(function(){alert("Copied!");});}
-  else{var r=document.createRange();r.selectNode(el);window.getSelection().removeAllRanges();window.getSelection().addRange(r);alert("Selected — press Ctrl+C / Cmd+C to copy");}
+  var emailEl=document.getElementById("supEmailText");if(!emailEl)return;
+  try{var blob=new Blob([emailEl.innerHTML],{type:"text/html"});var pb=new Blob([emailEl.innerText||emailEl.textContent],{type:"text/plain"});
+    navigator.clipboard.write([new ClipboardItem({"text/html":blob,"text/plain":pb})]).then(function(){alert("Copied as table! Paste directly into Gmail or Outlook.");}).catch(function(){supCopyFallback(emailEl);});}
+  catch(e){supCopyFallback(emailEl);}
 }
-
+function supCopyFallback(emailEl){var range=document.createRange();range.selectNodeContents(emailEl);window.getSelection().removeAllRanges();window.getSelection().addRange(range);try{document.execCommand("copy");alert("Copied! Paste into Gmail or Outlook for formatted table.");}catch(e){alert("Please manually select the table and press Ctrl+C");}}
 function supSave(){
-  var invNo=(document.getElementById("masterInvNo")||{}).value||""; invNo=invNo.trim();
+  var invNo=(document.getElementById("masterInvNo")||{}).value||"";invNo=invNo.trim();
   var pending=supData.filter(function(b){return b.status==="Reported";});
-  var selected=pending.filter(function(b){var c=document.getElementById("chk-"+b.id);return c&&c.checked;});
-  if(!selected.length||!invNo) return;
+  var fp=pending.filter(function(b){var c=document.getElementById("chk-"+b.id);return c&&c.checked;});
+  var ed=supData.filter(function(b){return b.status==="Claim Invoice Raised";});
+  var fd=ed.filter(function(b){var c=document.getElementById("rechk-"+b.id);return c&&c.checked;});
+  var selected=fp.concat(fd);if(!selected.length||!invNo)return;
   var updates=selected.map(function(b){
-    return {id:b.id, verifiedBy:currentName, claimInvoiceNo:invNo,
-      claimInvoiceDate:new Date().toLocaleDateString("en-IN"), rejected:false,
-      claimedQty:parseFloat((document.getElementById("cqty-"+b.id)||{}).value||b.boxesDamaged)||b.boxesDamaged,
-      pricePerBox:parseFloat((document.getElementById("cprice-"+b.id)||{}).value||0)||0};
+    var pe=document.getElementById("cprice-"+b.id)||document.getElementById("edit-price-"+b.id);
+    var qe=document.getElementById("cqty-"+b.id)||document.getElementById("edit-qty-"+b.id);
+    return{id:b.id,verifiedBy:currentName,claimInvoiceNo:invNo,claimInvoiceDate:new Date().toLocaleDateString("en-IN"),rejected:false,pricePerBox:parseFloat((pe||{}).value||0)||0,claimedQty:parseFloat((qe||{}).value||0)||b.boxesDamaged};
   });
-  apiPost({action:"supVerify", updates:updates})
-    .then(function(){loadSupData(); alert("Saved. "+updates.length+" item(s) marked as invoice raised.");})
-    .catch(function(e){alert("Error: "+e.message);});
+  apiPost({action:"supVerify",updates:updates}).then(function(){loadSupData();alert("Saved. "+updates.length+" items marked as invoice raised.");}).catch(function(e){alert("Error: "+e.message);});
 }
-
 function renderSupDone(){
   var container=document.getElementById("supDone");
   var done=supData.filter(function(b){return b.status!=="Reported";});
-  if(!done.length){container.innerHTML="<div class='empty'>No completed claims yet</div>";return;}
+  if(!done.length){container.innerHTML="<div class='empty-state'>No claims processed yet</div>";return;}
   container.innerHTML="";
+  var summary=document.createElement("div");summary.className="card";summary.style.cssText="background:var(--blue-l);border-color:#b5d4f4;margin-bottom:12px";
+  var pl=done.filter(function(b){return b.status==="Claim Invoice Raised";}).length;
+  var lk=done.filter(function(b){return b.status!=="Claim Invoice Raised"&&b.status!=="Reported";}).length;
+  summary.innerHTML="<div style='font-size:11px;font-weight:700;text-transform:uppercase;color:var(--blue);margin-bottom:6px'>Your processed claims</div><div style='display:flex;gap:16px;font-size:12px'><span style='color:var(--amber)'><strong>"+pl+"</strong> editable (owner not yet sent)</span><span style='color:var(--teal)'><strong>"+lk+"</strong> locked (owner sent)</span></div>";
+  container.appendChild(summary);
+  var card=document.createElement("div");card.className="card";card.style.cssText="padding:0;overflow:hidden";
+  var tbl=document.createElement("table");tbl.className="tbl";
+  tbl.innerHTML="<thead><tr><th style='padding:8px 12px'>Invoice</th><th style='padding:8px 12px'>Product</th><th style='text-align:center;width:8%;padding:8px 10px'>Reported</th><th style='text-align:center;width:9%;padding:8px 10px'>Claimed qty</th><th style='text-align:center;width:10%;padding:8px 10px'>Price/box</th><th style='text-align:center;width:11%;padding:8px 10px'>Tracking code</th><th style='text-align:center;width:10%;padding:8px 10px'>Completion no.</th><th style='width:10%;padding:8px 10px'></th></tr></thead>";
+  var tbody=document.createElement("tbody");
   done.forEach(function(b){
-    var card=document.createElement("div"); card.className="brk-card";
-    card.innerHTML="<div class='brk-top'>"+
-      "<div><div class='brk-item'>"+b.item+"</div>"+
-      "<div class='brk-meta'>Bill: <strong>"+b.billNumber+"</strong>"+(b.claimInvoiceNo?" &middot; Claim inv: <strong>"+b.claimInvoiceNo+"</strong>":"")+"<br>By: "+(b.supVerifiedBy||"—")+"</div></div>"+
-      "<div><div class='big-num'>"+b.boxesDamaged+"</div><div class='big-lbl'>boxes</div><div style='margin-top:4px'>"+statusBadge(b.status)+"</div></div>"+
-      "</div>";
-    container.appendChild(card);
+    var editable=b.status==="Claim Invoice Raised";var completed=b.creditNoteNo&&b.creditNoteNo!=="";
+    var tr=document.createElement("tr");tr.style.background=completed?"#f0faf5":editable?"#fffdf0":"#fff";
+    var td0=document.createElement("td");td0.style.cssText="padding:9px 12px;font-weight:600;font-size:12px";
+    if(editable){var reChk=document.createElement("input");reChk.type="checkbox";reChk.id="rechk-"+b.id;reChk.style.cssText="width:14px;height:14px;cursor:pointer;margin-right:6px;vertical-align:middle";reChk.title="Include in next summary";td0.appendChild(reChk);}
+    var bs=document.createElement("span");bs.textContent=b.billNumber;td0.appendChild(bs);tr.appendChild(td0);
+    var td1=document.createElement("td");td1.style.cssText="padding:9px 12px;font-size:12px";td1.innerHTML="<div style='font-weight:500'>"+b.item+"</div><div style='margin-top:3px'>"+statusBadge(b.status)+(editable?" <span style='font-size:10px;color:var(--amber);font-weight:600'>&#9998; Editable</span>":" <span style='font-size:10px;color:var(--teal)'>&#128274; Locked</span>")+"</div>";tr.appendChild(td1);
+    var td2=document.createElement("td");td2.style.cssText="padding:9px 10px;text-align:center;font-weight:700;color:var(--red)";td2.textContent=b.boxesDamaged;tr.appendChild(td2);
+    var td3=document.createElement("td");td3.style.cssText="padding:7px 8px;text-align:center";
+    if(editable){var qInp=document.createElement("input");qInp.type="number";qInp.className="inp-num";qInp.style.cssText="width:68px;text-align:center;background:#fff;color:#1a1a1a";qInp.id="edit-qty-"+b.id;qInp.value=b.claimedQty||b.boxesDamaged;qInp.min="0";td3.appendChild(qInp);}
+    else{td3.style.fontWeight="600";td3.style.color="var(--blue)";td3.textContent=b.boxesDamaged;}tr.appendChild(td3);
+    var tdP=document.createElement("td");tdP.style.cssText="padding:7px 8px;text-align:center";
+    if(editable){var pInp=document.createElement("input");pInp.type="number";pInp.className="inp-num";pInp.style.cssText="width:85px;text-align:right;background:#fff;color:#1a1a1a";pInp.id="edit-price-"+b.id;var sp2=parseFloat(b.creditAmount)||0;if(sp2>0)pInp.value=sp2;else pInp.placeholder="Price/box";pInp.min="0";tdP.appendChild(pInp);}
+    else{tdP.innerHTML="<span style='font-size:11px;color:#bbb'>—</span>";}tr.appendChild(tdP);
+    var td4=document.createElement("td");td4.style.cssText="padding:7px 8px;text-align:center";
+    if(editable){var cInp=document.createElement("input");cInp.type="text";cInp.className="inp-text";cInp.style.cssText="font-size:11px;padding:5px 7px;width:100%;text-align:center";cInp.id="edit-code-"+b.id;cInp.value=b.claimInvoiceNo||"";td4.appendChild(cInp);}
+    else{td4.style.cssText="padding:9px 10px;text-align:center;font-size:11px;color:var(--purple);font-weight:600";td4.textContent=b.claimInvoiceNo||"—";}tr.appendChild(td4);
+    var td5=document.createElement("td");td5.style.cssText="padding:7px 8px;text-align:center";
+    if(completed){td5.innerHTML="<span style='font-size:11px;font-weight:700;color:var(--teal)'>"+b.creditNoteNo+"</span>";}
+    else if(!editable){var cmpInp=document.createElement("input");cmpInp.type="text";cmpInp.className="inp-text";cmpInp.id="compno-"+b.id;cmpInp.placeholder="Enter no.";cmpInp.style.cssText="font-size:12px;padding:5px 7px;width:100%";td5.appendChild(cmpInp);}
+    else{td5.innerHTML="<span style='font-size:11px;color:#bbb'>After owner sends</span>";}tr.appendChild(td5);
+    var td6=document.createElement("td");td6.style.cssText="padding:7px 8px;text-align:center";
+    if(completed){td6.innerHTML="<span style='font-size:16px;color:var(--teal)'>&#10003;</span>";}
+    else if(editable){
+      var saveBtn=document.createElement("button");saveBtn.className="btn-primary";saveBtn.style.cssText="font-size:11px;height:30px;padding:0 10px;background:var(--amber)";saveBtn.textContent="Save edits";
+      saveBtn.addEventListener("click",(function(id){return function(){
+        var qty=parseFloat((document.getElementById("edit-qty-"+id)||{}).value||0)||0;
+        var code=((document.getElementById("edit-code-"+id)||{}).value||"").trim();
+        var pr=parseFloat((document.getElementById("edit-price-"+id)||{}).value||0)||0;
+        apiPost({action:"supVerify",updates:[{id:id,verifiedBy:currentName,claimInvoiceNo:code,claimInvoiceDate:new Date().toLocaleDateString("en-IN"),rejected:false,pricePerBox:pr,claimedQty:qty}]})
+          .then(function(){loadSupData();alert("Edits saved.");}).catch(function(e){alert("Error: "+e.message);});
+      };})(b.id));td6.appendChild(saveBtn);
+    }else{
+      var cmpBtn=document.createElement("button");cmpBtn.className="btn-primary";cmpBtn.style.cssText="font-size:11px;height:30px;padding:0 10px;background:var(--teal-m)";cmpBtn.textContent="Complete";
+      cmpBtn.addEventListener("click",(function(id){return function(){
+        var val=((document.getElementById("compno-"+id)||{}).value||"").trim();
+        if(!val){alert("Enter completion number first");return;}
+        apiPost({action:"supVerify",updates:[{id:id,verifiedBy:currentName,claimInvoiceNo:((document.getElementById("edit-code-"+id)||{value:""}).value),claimInvoiceDate:new Date().toLocaleDateString("en-IN"),rejected:false}]})
+          .then(function(){loadSupData();alert("Completion number saved.");}).catch(function(e){alert("Error: "+e.message);});
+      };})(b.id));td6.appendChild(cmpBtn);
+    }
+    tr.appendChild(td6);tbody.appendChild(tr);
   });
+  tbl.appendChild(tbody);card.appendChild(tbl);container.appendChild(card);
 }
 
-// ── OWNER ────────────────────────────────────────────────────
+// OWNER
 function loadOwnerData(){
-  document.getElementById("ownerApprove").innerHTML="<div class='empty'><span class='spinner'></span> Loading...</div>";
-  apiGet({action:"getAll"}).then(function(data){
-    ownerData=data||[]; renderOwnerPane("ownerApprove");
-  }).catch(function(e){document.getElementById("ownerApprove").innerHTML="<div class='empty' style='color:var(--red)'>Error: "+e.message+"</div>";});
+  ["ownerStep1","ownerStep2","ownerStep3","ownerMonth"].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML="<div class='empty-state'><span class='spinner'></span> Loading...</div>";});
+  apiGet({action:"getAll"}).then(function(data){ownerData=data||[];renderOwnerTab("ownerStep1");})
+    .catch(function(e){document.getElementById("ownerStep1").innerHTML="<div class='empty-state' style='color:var(--red)'>Error: "+e.message+"</div>";});
 }
-
-function renderOwnerPane(paneId){
-  var container=document.getElementById(paneId);
-  var items;
-  if(paneId==="ownerApprove") items=ownerData.filter(function(b){return b.status==="Claim Invoice Raised";});
-  else items=ownerData.filter(function(b){return b.status==="Email Sent"||b.status==="Survey Done";});
-  if(!items.length){container.innerHTML="<div class='empty'>"+(paneId==="ownerApprove"?"No claims ready to approve":"No open claims")+"</div>";return;}
-  container.innerHTML="";
-
-  items.forEach(function(b){
-    var card=document.createElement("div"); card.className="brk-card";
-    // Top
-    card.innerHTML="<div class='brk-top'>"+
-      "<div><div class='brk-item'>"+b.item+"</div>"+
-      "<div class='brk-meta'>Bill: <strong>"+b.billNumber+"</strong>"+(b.claimInvoiceNo?" &middot; Claim: <strong>"+b.claimInvoiceNo+"</strong>":"")+(b.supVerifiedBy?"<br>Verified by: "+b.supVerifiedBy:"")+"</div></div>"+
-      "<div><div class='big-num'>"+b.boxesDamaged+"</div><div class='big-lbl'>boxes</div><div style='margin-top:4px'>"+statusBadge(b.status)+"</div></div>"+
-      "</div>";
-
-    if(paneId==="ownerApprove"){
-      // Email draft
-      var NL="\n";
-      var email="Subject: Breakage Claim - Invoice "+b.billNumber+NL+NL+
-        "Dear Sir/Madam,"+NL+NL+
-        "We raise a breakage claim for the following:"+NL+NL+
-        "Invoice No    : "+b.billNumber+NL+
-        "Invoice Date  : "+b.billDate+NL+
-        "Product       : "+b.item+NL+
-        "Damaged Boxes : "+b.boxesDamaged+" boxes"+NL+
-        "Claim Invoice : "+(b.claimInvoiceNo||"-")+NL+
-        (b.notes?"Remarks       : "+b.notes+NL:"")+NL+
-        "Kindly adjust as credit note against our next invoice."+NL+NL+
-        "Regards,"+NL+"NDA Ceramics, Tumkur";
-      var draft=document.createElement("div"); draft.className="email-box"; draft.id="email-"+b.id; draft.textContent=email;
-      card.appendChild(draft);
-
-      var btnRow=document.createElement("div"); btnRow.style.cssText="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap";
-
-      var cBtn=document.createElement("button"); cBtn.className="copy-btn"; cBtn.textContent="Copy email";
-      cBtn.addEventListener("click",(function(id){return function(){
-        var el=document.getElementById("email-"+id); if(!el) return;
-        if(navigator.clipboard) navigator.clipboard.writeText(el.textContent).then(function(){alert("Copied!");});
-        else{var r=document.createRange();r.selectNode(el);window.getSelection().removeAllRanges();window.getSelection().addRange(r);}
-      };})(b.id));
-
-      var sBtn=document.createElement("button"); sBtn.className="btn btn-sm"; sBtn.textContent="Mark email sent";
-      sBtn.addEventListener("click",(function(bid){return function(){
-        var month=prompt("Enter month name (e.g. April 2026):");
-        if(month===null) return;
-        apiPost({action:"ownerApprove", updates:[{id:bid, action:"email_sent", approvedBy:currentName, month:month}]})
-          .then(function(){loadOwnerData();}).catch(function(e){alert("Error: "+e.message);});
-      };})(b.id));
-
-      var rBtn=document.createElement("button"); rBtn.className="btn btn-sm btn-red"; rBtn.textContent="Reject";
-      rBtn.addEventListener("click",(function(bid){return function(){
-        var reason=prompt("Rejection reason:");
-        if(reason===null) return;
-        apiPost({action:"ownerApprove", updates:[{id:bid, action:"reject", approvedBy:currentName, rejectionReason:reason}]})
-          .then(function(){loadOwnerData();}).catch(function(e){alert("Error: "+e.message);});
-      };})(b.id));
-
-      btnRow.appendChild(cBtn); btnRow.appendChild(sBtn); btnRow.appendChild(rBtn); card.appendChild(btnRow);
-
-    } else {
-      // Resolve section
-      var resDiv=document.createElement("div"); resDiv.style.cssText="background:var(--teal-l);border-radius:8px;padding:12px;margin-top:8px";
-      resDiv.innerHTML="<div style='font-size:11px;font-weight:700;text-transform:uppercase;color:var(--teal);margin-bottom:8px'>Record credit note</div>"+
-        "<div class='row-flex' style='margin-bottom:8px'>"+
-        "<input type='text' class='inp-sm' id='crno-"+b.id+"' placeholder='Credit note no.' style='flex:1;min-width:110px'/>"+
-        "<input type='number' class='inp-sm' id='cramt-"+b.id+"' placeholder='Amount (Rs)' style='width:120px'/>"+
-        "<input type='text' class='inp-sm' id='crinv-"+b.id+"' placeholder='Adjusted in invoice' style='flex:1;min-width:110px'/>"+
-        "</div>";
-      // Survey or credit button
-      var actionBtn=document.createElement("button"); actionBtn.className="btn btn-sm";
-      if(b.status==="Email Sent"){
-        actionBtn.textContent="Mark survey done"; actionBtn.style.background="var(--blue)";
-        actionBtn.addEventListener("click",(function(bid){return function(){
-          apiPost({action:"ownerApprove", updates:[{id:bid, action:"survey_done", approvedBy:currentName}]})
-            .then(function(){loadOwnerData();}).catch(function(e){alert("Error: "+e.message);});
-        };})(b.id));
-      } else {
-        actionBtn.textContent="Mark credit received"; actionBtn.style.background="var(--teal-m)";
-        actionBtn.addEventListener("click",(function(bid){return function(){
-          var crno=(document.getElementById("crno-"+bid)||{}).value||"";
-          var cramt=(document.getElementById("cramt-"+bid)||{}).value||0;
-          var crinv=(document.getElementById("crinv-"+bid)||{}).value||"";
-          if(!crno){alert("Enter credit note number");return;}
-          apiPost({action:"ownerApprove", updates:[{id:bid, action:"credit_received", approvedBy:currentName, creditNoteNo:crno, creditAmount:cramt, creditInvoiceNo:crinv}]})
-            .then(function(){loadOwnerData();}).catch(function(e){alert("Error: "+e.message);});
-        };})(b.id));
-      }
-      resDiv.appendChild(actionBtn); card.appendChild(resDiv);
-    }
-    container.appendChild(card);
+function renderOwnerTab(tabId){
+  var all=ownerData.filter(function(b){return b.status!=="Reported"&&b.status!=="Rejected";});
+  if(tabId==="ownerStep1")renderOwnerStep1(all.filter(function(b){return b.status==="Claim Invoice Raised";}));
+  else if(tabId==="ownerStep2")renderOwnerStep2(all.filter(function(b){return b.status==="Email Sent";}));
+  else if(tabId==="ownerStep3")renderOwnerStep3(all.filter(function(b){return b.status==="Survey Done";}));
+  else if(tabId==="ownerMonth")renderOwnerMonth(all);
+}
+function buildOwnerTable(container,items,showChk,actionBtn){
+  var all=ownerData.filter(function(b){return b.status!=="Reported"&&b.status!=="Rejected";});
+  var totalRep=0,totalClm=0;
+  all.forEach(function(b){var bv=parseFloat(b.creditAmount)||0;totalRep+=bv*b.boxesDamaged;totalClm+=bv*b.boxesDamaged;});
+  var bar=document.createElement("div");bar.className="card";bar.style.cssText="background:var(--teal-l);border-color:#9FE1CB;margin-bottom:14px;padding:12px 16px";
+  bar.innerHTML="<div style='display:flex;gap:24px;flex-wrap:wrap'><div><div style='font-size:10px;font-weight:700;text-transform:uppercase;color:#888'>Total reported</div><div style='font-size:18px;font-weight:700;color:var(--red)'>Rs "+totalRep.toFixed(2)+"</div></div><div><div style='font-size:10px;font-weight:700;text-transform:uppercase;color:#888'>Total claimed</div><div style='font-size:18px;font-weight:700;color:var(--teal)'>Rs "+totalClm.toFixed(2)+"</div></div><div><div style='font-size:10px;font-weight:700;text-transform:uppercase;color:#888'>This tab</div><div style='font-size:18px;font-weight:700;color:var(--amber)'>"+items.length+" items</div></div></div>";
+  container.appendChild(bar);
+  if(!items.length){var msg=document.createElement("div");msg.className="empty-state";msg.textContent="No items in this stage";container.appendChild(msg);return;}
+  var byBill={},billOrder=[];
+  items.forEach(function(b){if(!byBill[b.billNumber]){byBill[b.billNumber]=[];billOrder.push(b.billNumber);}byBill[b.billNumber].push(b);});
+  billOrder.forEach(function(bill){
+    var billItems=byBill[bill];var card=document.createElement("div");card.className="card";card.style.marginBottom="10px";
+    var hdr=document.createElement("div");hdr.style.cssText="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px";
+    var month=billItems[0].creditInvoiceNo||"",sentAt=billItems[0].claimEmailSentAt||"",daysElapsed="";
+    if(sentAt){var sd=new Date(sentAt);if(!isNaN(sd)){var bd=Math.floor((Date.now()-sd.getTime())/86400000);daysElapsed=bd===0?"Sent today":bd+" day"+(bd===1?"":"s")+" since email sent";}}
+    hdr.innerHTML="<div><div style='font-size:13px;font-weight:700'>Invoice: "+bill+"</div>"+(month?"<div style='font-size:11px;margin-top:3px;color:var(--purple);font-weight:600'>"+month+"</div>":"")+(sentAt?"<div style='font-size:11px;margin-top:2px;color:#888'>Sent: "+sentAt+"</div>":"")+(daysElapsed?"<div style='font-size:11px;margin-top:1px;font-weight:700;color:"+(parseInt(daysElapsed)>90?"var(--red)":parseInt(daysElapsed)>45?"var(--amber)":"var(--teal)")+"'>&#128337; "+daysElapsed+"</div>":"")+"</div>";
+    if(actionBtn)hdr.appendChild(actionBtn(billItems));card.appendChild(hdr);
+    var tbl=document.createElement("table");tbl.className="tbl";tbl.style.fontSize="12px";
+    tbl.innerHTML="<thead><tr style='background:var(--bg2)'>"+(showChk?"<th style='padding:6px 8px;width:3%'></th>":"")+"<th style='padding:6px 8px'>Product</th><th style='padding:6px 8px;text-align:right;width:11%'>Box value (Rs)</th><th style='padding:6px 8px;text-align:right;width:8%'>Rep. qty</th><th style='padding:6px 8px;text-align:right;width:12%'>Rep. value</th><th style='padding:6px 8px;text-align:right;width:8%'>Claim qty</th><th style='padding:6px 8px;text-align:right;width:12%'>Claim value</th></tr></thead>";
+    var tbody=document.createElement("tbody");var billRep=0,billClm=0;
+    billItems.forEach(function(b){
+      var bv=parseFloat(b.creditAmount)||0,clmQ=b.claimedQty||b.boxesDamaged,rv=bv*b.boxesDamaged,cv=bv*clmQ;billRep+=rv;billClm+=cv;
+      var tr=document.createElement("tr");tr.style.borderBottom="1px solid #f5f5f5";
+      if(showChk){var tc=document.createElement("td");tc.style.padding="6px 8px";var chk=document.createElement("input");chk.type="checkbox";chk.id="ochk-"+b.id;chk.checked=true;chk.style.cssText="width:14px;height:14px;cursor:pointer";tc.appendChild(chk);tr.appendChild(tc);}
+      tr.innerHTML+="<td style='padding:6px 8px;font-weight:500'>"+b.item+"</td><td style='padding:6px 8px;text-align:right'>"+(bv>0?"Rs "+bv.toFixed(2):"—")+"</td><td style='padding:6px 8px;text-align:right;font-weight:700;color:var(--red)'>"+b.boxesDamaged+"</td><td style='padding:6px 8px;text-align:right'>"+(rv>0?"Rs "+rv.toFixed(2):"—")+"</td><td style='padding:6px 8px;text-align:right;font-weight:700;color:var(--blue)'>"+(b.claimedQty||b.boxesDamaged)+"</td><td style='padding:6px 8px;text-align:right;font-weight:700;color:var(--teal)'>"+(cv>0?"Rs "+cv.toFixed(2):"—")+"</td>";
+      tbody.appendChild(tr);
+    });
+    var tot=document.createElement("tr");tot.style.cssText="font-weight:700;border-top:2px solid var(--border);background:var(--bg2)";
+    tot.innerHTML=(showChk?"<td></td>":"")+"<td style='padding:6px 8px'>Invoice total</td><td></td><td style='padding:6px 8px;text-align:right;color:var(--red)'>"+billItems.reduce(function(s,b){return s+b.boxesDamaged;},0)+"</td><td style='padding:6px 8px;text-align:right'>"+(billRep>0?"Rs "+billRep.toFixed(2):"—")+"</td><td style='padding:6px 8px;text-align:right;color:var(--blue)'>"+billItems.reduce(function(s,b){return s+(b.claimedQty||b.boxesDamaged);},0)+"</td><td style='padding:6px 8px;text-align:right;color:var(--teal)'>"+(billClm>0?"Rs "+billClm.toFixed(2):"—")+"</td>";
+    tbody.appendChild(tot);tbl.appendChild(tbody);card.appendChild(tbl);container.appendChild(card);
   });
 }
-
-function renderOwnerDash(){
-  var container=document.getElementById("ownerDash");
-  container.innerHTML="<div class='empty'><span class='spinner'></span> Loading...</div>";
-  apiGet({action:"getDashboard"}).then(function(data){
-    container.innerHTML="";
-    var sc=data.statusCounts||{};
-    var stats=document.createElement("div"); stats.className="stat-row";
-    stats.innerHTML=
-      "<div class='stat red'><div class='stat-v'>"+(data.totalBoxes||0)+"</div><div class='stat-l'>Total boxes</div></div>"+
-      "<div class='stat warn'><div class='stat-v'>"+((sc["Email Sent"]||0)+(sc["Survey Done"]||0))+"</div><div class='stat-l'>Pending</div></div>"+
-      "<div class='stat ok'><div class='stat-v'>Rs "+(data.totalCredit||0).toLocaleString("en-IN")+"</div><div class='stat-l'>Credits received</div></div>"+
-      "<div class='stat ok'><div class='stat-v'>"+(sc["Resolved"]||0)+"</div><div class='stat-l'>Resolved</div></div>";
-    container.appendChild(stats);
-
-    var pipe=document.createElement("div"); pipe.className="card";
-    pipe.innerHTML="<div style='font-size:11px;font-weight:700;text-transform:uppercase;color:#999;margin-bottom:10px'>Pipeline</div>"+
-      "<div class='row-flex' style='gap:6px'>"+
-      pipeItem("Reported",sc["Reported"]||0,"b-reported")+
-      pipeItem("Invoice Raised",sc["Claim Invoice Raised"]||0,"b-invoiced")+
-      pipeItem("Email Sent",sc["Email Sent"]||0,"b-sent")+
-      pipeItem("Survey Done",sc["Survey Done"]||0,"b-survey")+
-      pipeItem("Resolved",sc["Resolved"]||0,"b-resolved")+
-      pipeItem("Rejected",sc["Rejected"]||0,"b-rejected")+
-      "</div>";
-    container.appendChild(pipe);
-
-    if(data.openClaims&&data.openClaims.length){
-      var oc=document.createElement("div"); oc.className="card";
-      oc.innerHTML="<div style='font-size:11px;font-weight:700;text-transform:uppercase;color:#999;margin-bottom:10px'>Open claims</div>";
-      data.openClaims.forEach(function(c){
-        var row=document.createElement("div"); row.style.cssText="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)";
-        row.innerHTML="<div><div style='font-size:12px;font-weight:600'>"+c.item+"</div>"+
-          "<div style='font-size:11px;color:#888'>Bill: "+c.bill+" &middot; "+c.boxes+" boxes &middot; "+(c.claimInvoiceNo||"—")+"</div></div>"+
-          "<span class='badge "+(c.status==="Survey Done"?"b-survey":"b-sent")+"'>"+c.status+"</span>";
-        oc.appendChild(row);
-      });
-      container.appendChild(oc);
-    }
-  }).catch(function(e){container.innerHTML="<div class='empty' style='color:var(--red)'>Error: "+e.message+"</div>";});
+function renderOwnerStep1(items){
+  var c=document.getElementById("ownerStep1");c.innerHTML="";
+  buildOwnerTable(c,items,true,function(billItems){
+    var wrap=document.createElement("div");wrap.style.cssText="display:flex;gap:8px";
+    var selBtn=document.createElement("button");selBtn.style.cssText="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);cursor:pointer";selBtn.textContent="Select all";
+    selBtn.addEventListener("click",function(){billItems.forEach(function(b){var c=document.getElementById("ochk-"+b.id);if(c)c.checked=true;});});
+    var btn=document.createElement("button");btn.className="btn-primary";btn.style.cssText="font-size:12px;height:32px;background:var(--teal-m)";btn.innerHTML="&#10003; Mark email sent";
+    btn.addEventListener("click",function(){
+      var chkd=billItems.filter(function(b){var c=document.getElementById("ochk-"+b.id);return c&&c.checked;});
+      if(!chkd.length){alert("Select at least one item");return;}
+      var month=prompt("Enter month for this claim (e.g. April 2026):");if(!month)return;
+      if(!confirm("Mark "+chkd.length+" item(s) as email sent for "+month+"? This locks them."))return;
+      apiPost({action:"ownerApprove",updates:chkd.map(function(b){return{id:b.id,action:"email_sent",approvedBy:currentName,month:month};})})
+        .then(function(){loadOwnerData();switchTabs("ownerTabs","ownerStep2");setTimeout(function(){renderOwnerTab("ownerStep2");},200);})
+        .catch(function(e){alert("Error: "+e.message);});
+    });
+    wrap.appendChild(selBtn);wrap.appendChild(btn);return wrap;
+  });
 }
-
-function pipeItem(label,count,cls){
-  return "<div style='background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 10px;min-width:80px'>"+
-    "<span class='badge "+cls+"'>"+label+"</span><div style='font-size:20px;font-weight:700;margin-top:4px'>"+count+"</div></div>";
+function renderOwnerStep2(items){
+  var c=document.getElementById("ownerStep2");c.innerHTML="";
+  buildOwnerTable(c,items,true,function(billItems){
+    var btn=document.createElement("button");btn.className="btn-primary";btn.style.cssText="font-size:12px;height:32px;background:var(--blue)";btn.innerHTML="&#10003; Mark survey done";
+    btn.addEventListener("click",function(){
+      var chkd=billItems.filter(function(b){var c=document.getElementById("ochk-"+b.id);return c&&c.checked;});
+      if(!chkd.length){alert("Select at least one item");return;}
+      if(!confirm("Mark survey done for "+chkd.length+" item(s)?"))return;
+      apiPost({action:"ownerApprove",updates:chkd.map(function(b){return{id:b.id,action:"survey_done",approvedBy:currentName};})})
+        .then(function(){loadOwnerData();switchTabs("ownerTabs","ownerStep3");setTimeout(function(){renderOwnerTab("ownerStep3");},200);})
+        .catch(function(e){alert("Error: "+e.message);});
+    });
+    return btn;
+  });
 }
-
-function statusBadge(s){
-  var map={"Reported":"b-reported","Claim Invoice Raised":"b-invoiced","Email Sent":"b-sent","Survey Done":"b-survey","Resolved":"b-resolved","Rejected":"b-rejected"};
-  return "<span class='badge "+(map[s]||"b-reported")+"'>"+s+"</span>";
+function renderOwnerStep3(items){
+  var c=document.getElementById("ownerStep3");c.innerHTML="";
+  buildOwnerTable(c,items,true,function(billItems){
+    var btn=document.createElement("button");btn.className="btn-primary";btn.style.cssText="font-size:12px;height:32px;background:var(--purple)";btn.innerHTML="&#10003; Mark credit note received";
+    btn.addEventListener("click",function(){
+      var chkd=billItems.filter(function(b){var c=document.getElementById("ochk-"+b.id);return c&&c.checked;});
+      if(!chkd.length){alert("Select at least one item");return;}
+      if(!confirm("Mark credit note received for "+chkd.length+" item(s)? This completes the lifecycle."))return;
+      apiPost({action:"ownerApprove",updates:chkd.map(function(b){return{id:b.id,action:"credit_received",approvedBy:currentName};})})
+        .then(function(){loadOwnerData();alert("Done! Items marked as resolved.");})
+        .catch(function(e){alert("Error: "+e.message);});
+    });
+    return btn;
+  });
 }
-
-function showPill(id,type,msg){
-  var p=document.getElementById(id); if(!p) return;
-  p.style.display="block";
-  p.innerHTML="<span class='pill pill-"+(type==="loading"?"loading":type==="ok"?"ok":"err")+"'>"+
-    (type==="loading"?"<span class='spinner'></span>":"<span>"+(type==="ok"?"&#10003;":"&#10005;")+"</span>")+
-    "<span>"+msg+"</span></span>";
+function renderOwnerMonth(all){
+  var c=document.getElementById("ownerMonth");c.innerHTML="";
+  if(!all.length){c.innerHTML="<div class='empty-state'>No data</div>";return;}
+  var byMonth={},monthOrder=[];
+  all.forEach(function(b){var m=b.creditInvoiceNo||"No month assigned";if(!byMonth[m]){byMonth[m]={items:[],rep:0,clm:0};monthOrder.push(m);}var bv=parseFloat(b.creditAmount)||0;byMonth[m].items.push(b);byMonth[m].rep+=bv*b.boxesDamaged;byMonth[m].clm+=bv*b.boxesDamaged;});
+  var sumCard=document.createElement("div");sumCard.className="card";sumCard.style.marginBottom="14px";
+  sumCard.innerHTML="<div style='font-size:11px;font-weight:700;text-transform:uppercase;color:#999;margin-bottom:10px'>Summary by month</div>";
+  var sumTbl=document.createElement("table");sumTbl.className="tbl";sumTbl.style.fontSize="12px";
+  sumTbl.innerHTML="<thead><tr><th>Month</th><th style='text-align:center'>Items</th><th style='text-align:right'>Reported value</th><th style='text-align:right'>Claimed value</th><th style='text-align:center'>Status mix</th></tr></thead>";
+  var sumBody=document.createElement("tbody");
+  monthOrder.forEach(function(m){
+    var d=byMonth[m],statuses=[...new Set(d.items.map(function(b){return b.status;}))].join(", ");
+    var tr=document.createElement("tr");tr.style.cssText="border-bottom:1px solid #f0f0f0";
+    tr.innerHTML="<td style='padding:8px 10px;font-weight:700'>"+m+"</td><td style='padding:8px 10px;text-align:center'>"+d.items.length+"</td><td style='padding:8px 10px;text-align:right;font-weight:600;color:var(--red)'>"+(d.rep>0?"Rs "+d.rep.toFixed(2):"—")+"</td><td style='padding:8px 10px;text-align:right;font-weight:600;color:var(--teal)'>"+(d.clm>0?"Rs "+d.clm.toFixed(2):"—")+"</td><td style='padding:8px 10px;text-align:center;font-size:11px;color:#888'>"+statuses+"</td>";
+    sumBody.appendChild(tr);
+  });
+  sumTbl.appendChild(sumBody);sumCard.appendChild(sumTbl);c.appendChild(sumCard);
+  monthOrder.forEach(function(m){
+    var d=byMonth[m];
+    var mHdr=document.createElement("div");mHdr.style.cssText="font-size:13px;font-weight:700;margin:14px 0 8px;color:var(--purple)";mHdr.textContent=m;c.appendChild(mHdr);
+    var card=document.createElement("div");card.className="card";card.style.marginBottom="10px";
+    var tbl=document.createElement("table");tbl.className="tbl";tbl.style.fontSize="12px";
+    tbl.innerHTML="<thead><tr style='background:var(--bg2)'><th style='padding:6px 10px'>Invoice</th><th style='padding:6px 10px'>Product</th><th style='padding:6px 10px;text-align:right'>Box value</th><th style='padding:6px 10px;text-align:right'>Rep. qty</th><th style='padding:6px 10px;text-align:right'>Rep. value</th><th style='padding:6px 10px;text-align:right'>Claim qty</th><th style='padding:6px 10px;text-align:right'>Claim value</th><th style='padding:6px 10px;text-align:center'>Days</th><th style='padding:6px 10px;text-align:center'>Stage</th></tr></thead>";
+    var tbody=document.createElement("tbody");var mRep=0,mClm=0;
+    d.items.forEach(function(b){
+      var bv=parseFloat(b.creditAmount)||0,rv=bv*b.boxesDamaged,cv=bv*b.boxesDamaged;mRep+=rv;mClm+=cv;
+      var tr=document.createElement("tr");tr.style.borderBottom="1px solid #f5f5f5";
+      var bDays="—";if(b.claimEmailSentAt){var bSent=new Date(b.claimEmailSentAt);if(!isNaN(bSent)){var bd=Math.floor((Date.now()-bSent.getTime())/86400000);bDays="<span style='font-weight:700;color:"+(bd>90?"var(--red)":bd>45?"var(--amber)":"var(--teal)")+"'>"+bd+"d</span>";}}
+      tr.innerHTML="<td style='padding:6px 10px;font-weight:600;font-size:11px'>"+b.billNumber+"</td><td style='padding:6px 10px;font-weight:500'>"+b.item+"</td><td style='padding:6px 10px;text-align:right'>"+(bv>0?"Rs "+bv.toFixed(2):"—")+"</td><td style='padding:6px 10px;text-align:right;font-weight:700;color:var(--red)'>"+b.boxesDamaged+"</td><td style='padding:6px 10px;text-align:right'>"+(rv>0?"Rs "+rv.toFixed(2):"—")+"</td><td style='padding:6px 10px;text-align:right;font-weight:700;color:var(--blue)'>"+(b.claimedQty||b.boxesDamaged)+"</td><td style='padding:6px 10px;text-align:right;font-weight:700;color:var(--teal)'>"+(cv>0?"Rs "+cv.toFixed(2):"—")+"</td><td style='padding:6px 10px;text-align:center'>"+bDays+"</td><td style='padding:6px 10px;text-align:center'>"+statusBadge(b.status)+"</td>";
+      tbody.appendChild(tr);
+    });
+    var tot=document.createElement("tr");tot.style.cssText="font-weight:700;border-top:2px solid var(--border);background:var(--bg2)";
+    tot.innerHTML="<td colspan='2' style='padding:6px 10px'>Month total</td><td></td><td style='padding:6px 10px;text-align:right;color:var(--red)'>"+d.items.reduce(function(s,b){return s+b.boxesDamaged;},0)+"</td><td style='padding:6px 10px;text-align:right'>"+(mRep>0?"Rs "+mRep.toFixed(2):"—")+"</td><td style='padding:6px 10px;text-align:right;color:var(--blue)'>"+d.items.reduce(function(s,b){return s+(b.claimedQty||b.boxesDamaged);},0)+"</td><td style='padding:6px 10px;text-align:right;color:var(--teal)'>"+(mClm>0?"Rs "+mClm.toFixed(2):"—")+"</td><td></td><td></td>";
+    tbody.appendChild(tot);tbl.appendChild(tbody);card.appendChild(tbl);c.appendChild(card);
+  });
 }
+function statusBadge(status){var map={"Reported":"s-reported","Supervisor Verified":"s-verified","Claim Invoice Raised":"s-invoiced","Email Sent":"s-sent","Survey Done":"s-verified","Resolved":"s-resolved","Rejected":"s-rejected"};return "<span class='badge "+(map[status]||"s-reported")+"'>"+status+"</span>";}
+function showPill(id,type,msg){var p=document.getElementById(id);if(!p)return;p.style.display="inline-flex";p.className="pill pill-"+(type==="loading"?"loading":type==="ok"?"ok":"err");p.innerHTML=(type==="loading"?"<span class='spinner'></span>":"<span>"+(type==="ok"?"&#10003;":"&#10005;")+"</span>")+"<span>"+msg+"</span>";}
 </script>
 </body>
 </html>
+
