@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NDA Breakage System</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;color:#1a1a1a;font-size:14px}
+:root{
+  --red:#A32D2D;--red-l:#FCEBEB;--red-m:#E24B4A;
+  --teal:#0F6E56;--teal-l:#E1F5EE;--teal-m:#1D9E75;
+  --amber:#BA7517;--amber-l:#FAEEDA;
+  --blue:#185FA5;--blue-l:#E6F1FB;
+  --purple:#534AB7;--purple-l:#EEEDFE;
+  --border:#e2e4e8;--bg:#fff;--bg2:#f8f9fa;
+}
+.header{background:#fff;border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.header h1{font-size:15px;font-weight:700}
+.role-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-left:8px;display:none}
+.role-godown{background:#FFF3CD;color:#856404}
+.role-supervisor{background:var(--blue-l);color:var(--blue)}
+.role-owner{background:var(--teal-l);color:var(--teal)}
+.btn-change{font-size:11px;padding:5px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);cursor:pointer;color:#666;display:none}
+.wrap{max-width:960px;margin:0 auto;padding:16px}
+.page{display:none}.page.active{display:block}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.btn{background:var(--teal-m);color:#fff;border:none;border-radius:8px;padding:0 18px;font-size:13px;font-weight:700;cursor:pointer;height:38px;white-space:nowrap}
+.btn:hover{opacity:.88}.btn:disabled{opacity:.4;cursor:default}
+.btn-red{background:var(--red)}.btn-purple{background:var(--purple)}.btn-blue{background:var(--blue)}
+.btn-sm{height:32px;font-size:12px;padding:0 12px}
+.inp{font-size:14px;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;outline:none}
+.inp:focus{border-color:var(--teal-m)}
+.inp-sm{font-size:13px;padding:6px 10px;border:1.5px solid var(--border);border-radius:7px;outline:none}
+.inp-sm:focus{border-color:var(--teal-m)}
+.inp-num{font-size:13px;font-weight:600;padding:5px 7px;border:1.5px solid var(--border);border-radius:7px;text-align:center;outline:none;background:#f5f5f5;color:#aaa;width:72px}
+.inp-num:not([disabled]){background:#fff;color:#1a1a1a}
+.inp-num:focus{border-color:var(--teal-m)}
+.inp-price{width:88px;text-align:right}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.chip{font-size:11px;padding:3px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:#555}
+.chip:hover{background:var(--teal-l);color:var(--teal);border-color:var(--teal-m)}
+.tabs{display:flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px;background:var(--bg2)}
+.tab{flex:1;padding:9px 4px;font-size:12px;font-weight:600;text-align:center;cursor:pointer;background:transparent;color:#888;border:none}
+.tab.active{background:#fff;color:#1a1a1a}
+.pane{display:none}.pane.active{display:block}
+.role-screen{max-width:440px;margin:50px auto;text-align:center}
+.role-screen h2{font-size:20px;font-weight:700;margin-bottom:6px}
+.role-screen p{font-size:13px;color:#888;margin-bottom:28px}
+.role-cards{display:flex;flex-direction:column;gap:10px}
+.role-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:16px 20px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:14px}
+.role-card:hover{border-color:var(--teal-m)}
+.rc-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.rc-title{font-size:15px;font-weight:700}
+.rc-desc{font-size:12px;color:#888;margin-top:2px}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:16px;padding:28px 26px;width:300px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:4px}
+.modal p{font-size:12px;color:#888;margin-bottom:16px}
+.modal .inp{width:100%;font-size:16px;text-align:center;margin-bottom:10px}
+.modal .inp.pin{font-size:22px;letter-spacing:8px}
+.modal-err{font-size:12px;color:var(--red);margin-top:6px;display:none}
+.modal-cancel{font-size:12px;color:#aaa;margin-top:10px;cursor:pointer;text-decoration:underline;display:block}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#999;padding:7px 8px;border-bottom:2px solid var(--border);background:var(--bg2);text-align:left}
+.tbl td{padding:8px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+.tbl tbody tr:last-child td{border-bottom:none}
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px}
+.b-reported{background:#FFF3CD;color:#856404}
+.b-invoiced{background:var(--purple-l);color:var(--purple)}
+.b-sent{background:var(--amber-l);color:var(--amber)}
+.b-survey{background:var(--blue-l);color:var(--blue)}
+.b-resolved{background:var(--teal-l);color:var(--teal)}
+.b-rejected{background:var(--red-l);color:var(--red)}
+.brk-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px}
+.brk-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
+.brk-item{font-size:13px;font-weight:600}
+.brk-meta{font-size:11px;color:#888;margin-top:3px;line-height:1.6}
+.big-num{font-size:22px;font-weight:700;color:var(--red);text-align:right}
+.big-lbl{font-size:10px;color:#aaa;text-align:right}
+.email-box{background:#f8f9fa;border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:12px;line-height:1.7;white-space:pre-wrap;font-family:monospace;color:#333;max-height:240px;overflow-y:auto;margin-top:8px}
+.copy-btn{font-size:11px;padding:5px 12px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;color:#555;margin-top:6px}
+.copy-btn:hover{background:var(--teal-l);color:var(--teal)}
+.master-bar{background:var(--purple-l);border:1px solid #AFA9EC;border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.empty{text-align:center;padding:32px;color:#aaa;font-size:13px;font-style:italic}
+.stat-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.stat{flex:1;min-width:100px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:11px 13px}
+.stat-v{font-size:22px;font-weight:700}.stat-l{font-size:10px;color:#999;margin-top:2px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.stat.red .stat-v{color:var(--red)}.stat.ok .stat-v{color:var(--teal)}.stat.warn .stat-v{color:var(--amber)}
+.prev-wrap{background:var(--amber-l);border:1px solid #f5c842;border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.prev-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--amber);margin-bottom:8px}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--amber);border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:4px 10px;border-radius:20px;margin-top:8px}
+.pill-ok{background:var(--teal-l);color:var(--teal)}
+.pill-err{background:var(--red-l);color:var(--red)}
+.pill-loading{background:var(--amber-l);color:var(--amber)}
+.row-flex{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sep{height:1px;background:var(--border);margin:10px 0}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="display:flex;align-items:center">
+    <h1>&#9888; Breakage System</h1>
+    <span class="role-badge" id="roleBadge"></span>
+  </div>
+  <button class="btn-change" id="changeBtn" onclick="logout()">&#8592; Change role</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ROLE SELECTION -->
+  <div class="page active" id="page-role">
+    <div class="role-screen">
+      <h2>Who are you?</h2>
+      <p>Select your role to continue</p>
+      <div class="role-cards">
+        <div class="role-card" id="rc-godown">
+          <div class="rc-icon" style="background:#FFF3CD">&#128722;</div>
+          <div><div class="rc-title">Godown Incharge</div><div class="rc-desc">Report damaged boxes from incoming bills</div></div>
+        </div>
+        <div class="role-card" id="rc-supervisor">
+          <div class="rc-icon" style="background:var(--blue-l)">&#128203;</div>
+          <div><div class="rc-title">Supervisor</div><div class="rc-desc">Verify reports and raise claim invoices</div></div>
+        </div>
+        <div class="role-card" id="rc-owner">
+          <div class="rc-icon" style="background:var(--teal-l)">&#128274;</div>
+          <div><div class="rc-title">Owner</div><div class="rc-desc">Approve claims, send emails, track credits</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GODOWN -->
+  <div class="page" id="page-godown">
+    <div class="card">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:10px">Select bill</div>
+      <div class="row-flex">
+        <input type="text" class="inp" id="gdBillInput" placeholder="Type or pick invoice number..." style="flex:1"/>
+        <button class="btn" id="gdLoadBtn">Load &#8594;</button>
+      </div>
+      <div id="gdPill"></div>
+      <div class="chips" id="gdChips"><span class="spinner"></span></div>
+    </div>
+    <div id="gdFlow" style="display:none">
+      <div id="gdPrevWrap" style="display:none"></div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div>
+            <div style="font-size:14px;font-weight:700" id="gdBillTitle"></div>
+            <div style="font-size:12px;color:#888;margin-top:2px">Enter damaged boxes. Leave 0 if none.</div>
+          </div>
+          <div style="font-size:12px;color:#888" id="gdBillDate"></div>
+        </div>
+        <table class="tbl">
+          <thead><tr>
+            <th>Item</th>
+            <th style="width:10%;text-align:center">Bill qty</th>
+            <th style="width:14%;text-align:center">Damaged</th>
+            <th style="width:30%">Notes</th>
+          </tr></thead>
+          <tbody id="gdTbody"></tbody>
+        </table>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--border);margin-top:8px">
+          <span style="font-size:12px;color:#888">Items with damage: <strong id="gdDmgCount" style="color:var(--red)">0</strong></span>
+          <button class="btn btn-red" id="gdSubmitBtn" disabled>Submit report &#8593;</button>
+        </div>
+        <div id="gdSuccess" style="display:none;background:var(--teal-l);border:1px solid #9FE1CB;border-radius:10px;padding:12px;text-align:center;margin-top:8px">
+          <strong style="color:var(--teal)">&#10003; Report submitted successfully</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPERVISOR -->
+  <div class="page" id="page-supervisor">
+    <div class="tabs">
+      <button class="tab active" data-pane="supVerify">Verify &amp; Claim</button>
+      <button class="tab" data-pane="supDone">Completed</button>
+    </div>
+    <div class="pane active" id="supVerify"></div>
+    <div class="pane" id="supDone"></div>
+  </div>
+
+  <!-- OWNER -->
+  <div class="page" id="page-owner">
+    <div class="tabs">
+      <button class="tab active" data-pane="ownerApprove">Approve &amp; Send</button>
+      <button class="tab" data-pane="ownerResolve">Resolve</button>
+      <button class="tab" data-pane="ownerDash">Dashboard</button>
+    </div>
+    <div class="pane active" id="ownerApprove"></div>
+    <div class="pane" id="ownerResolve"></div>
+    <div class="pane" id="ownerDash"></div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3 id="modalTitle"></h3>
+    <p id="modalDesc"></p>
+    <input type="text" class="inp" id="modalName" placeholder="Your name..." style="display:none"/>
+    <input type="password" class="inp pin" id="modalPin" placeholder="PIN" style="display:none"/>
+    <button class="btn" style="width:100%;margin-top:4px" id="modalOk">Continue</button>
+    <div class="modal-err" id="modalErr">Incorrect PIN. Try again.</div>
+    <span class="modal-cancel" id="modalCancel">Cancel</span>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────
+var API = "https://script.google.com/macros/s/AKfycbzffAbw-tRwgFjTTcyoHqF9YcAxZMmjHGoLFJEvdUQ8OTx6hXq2PbH_3ow2JQTSKH7a/exec";
+
+// ── STATE ───────────────────────────────────────────────────
+var currentRole = "", currentName = "", pendingRole = "";
+var gdBillRows = [], gdCurrentBill = "", gdCurrentDate = "";
+var supData = [], ownerData = [];
+
+// ── API HELPERS ─────────────────────────────────────────────
+function apiGet(params) {
+  var url = API + "?" + Object.keys(params).map(function(k){
+    return encodeURIComponent(k) + "=" + encodeURIComponent(params[k]);
+  }).join("&");
+  return fetch(url).then(function(r){return r.json();});
+}
+
+function apiPost(body) {
+  return fetch(API, {
+    method: "POST",
+    body: JSON.stringify(body)
+  }).then(function(r){return r.json();});
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+window.addEventListener("load", function() {
+  document.getElementById("rc-godown").addEventListener("click", function(){openModal("godown");});
+  document.getElementById("rc-supervisor").addEventListener("click", function(){openModal("supervisor");});
+  document.getElementById("rc-owner").addEventListener("click", function(){openModal("owner");});
+  document.getElementById("modalOk").addEventListener("click", submitModal);
+  document.getElementById("modalCancel").addEventListener("click", closeModal);
+  document.getElementById("modalPin").addEventListener("keydown", function(e){if(e.key==="Enter")submitModal();});
+  document.getElementById("modalName").addEventListener("keydown", function(e){if(e.key==="Enter")submitModal();});
+  document.getElementById("gdLoadBtn").addEventListener("click", gdLoad);
+  document.getElementById("gdBillInput").addEventListener("keydown", function(e){if(e.key==="Enter")gdLoad();});
+  document.getElementById("gdSubmitBtn").addEventListener("click", gdSubmit);
+
+  // Tabs
+  document.querySelectorAll(".tab").forEach(function(tab) {
+    tab.addEventListener("click", function() {
+      var paneId = tab.dataset.pane;
+      var tabsEl = tab.closest(".tabs");
+      tabsEl.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active");});
+      tab.classList.add("active");
+      // Hide all sibling panes
+      var page = tabsEl.nextElementSibling;
+      while(page) { if(page.classList.contains("pane")) page.classList.remove("active"); page = page.nextElementSibling; }
+      var pane = document.getElementById(paneId);
+      if(pane) pane.classList.add("active");
+      // Render on demand
+      if(paneId==="supDone") renderSupDone();
+      if(paneId==="ownerApprove") renderOwnerPane("ownerApprove");
+      if(paneId==="ownerResolve") renderOwnerPane("ownerResolve");
+      if(paneId==="ownerDash") renderOwnerDash();
+    });
+  });
+
+  // Load bills for godown chips
+  apiGet({action:"getBills"}).then(function(bills){
+    var chips = document.getElementById("gdChips");
+    chips.innerHTML = "";
+    if(!Array.isArray(bills)||!bills.length){chips.innerHTML="<span style='font-size:12px;color:#aaa'>No bills found</span>";return;}
+    bills.forEach(function(b){
+      var s = document.createElement("span");
+      s.className = "chip"; s.textContent = b;
+      s.addEventListener("click", function(){document.getElementById("gdBillInput").value=b; gdLoad();});
+      chips.appendChild(s);
+    });
+  }).catch(function(){
+    document.getElementById("gdChips").innerHTML = "<span style='font-size:12px;color:var(--red)'>Could not load bills</span>";
+  });
+});
+
+function showPage(name) {
+  document.querySelectorAll(".page").forEach(function(p){p.classList.remove("active");});
+  document.getElementById("page-"+name).classList.add("active");
+}
+
+// ── MODAL ────────────────────────────────────────────────────
+function openModal(role) {
+  pendingRole = role;
+  document.getElementById("modalErr").style.display = "none";
+  document.getElementById("modalTitle").textContent = role==="godown"?"Godown Incharge":role==="supervisor"?"Supervisor":"Owner";
+  document.getElementById("modalDesc").textContent  = role==="godown"?"Enter your name to continue":"Enter your PIN to continue";
+  var nameEl = document.getElementById("modalName");
+  var pinEl  = document.getElementById("modalPin");
+  nameEl.style.display = role==="godown" ? "block" : "none";
+  pinEl.style.display  = role==="godown" ? "none"  : "block";
+  nameEl.value=""; pinEl.value="";
+  document.getElementById("modalBg").classList.add("open");
+  setTimeout(function(){(role==="godown"?nameEl:pinEl).focus();},120);
+}
+
+function closeModal(){ document.getElementById("modalBg").classList.remove("open"); }
+
+function submitModal() {
+  if(pendingRole==="godown"){
+    var name = document.getElementById("modalName").value.trim();
+    if(!name) return;
+    currentName=name; currentRole="godown"; activateRole();
+  } else {
+    var pin = document.getElementById("modalPin").value.trim();
+    var btn = document.getElementById("modalOk");
+    btn.disabled=true; btn.textContent="Checking...";
+    apiGet({action:"checkPin", pin:pin, role:pendingRole}).then(function(ok){
+      btn.disabled=false; btn.textContent="Continue";
+      if(ok===true||ok==="true"){currentRole=pendingRole; currentName=pendingRole==="supervisor"?"Supervisor":"Owner"; activateRole();}
+      else {document.getElementById("modalErr").style.display="block"; document.getElementById("modalPin").value="";}
+    }).catch(function(){btn.disabled=false; btn.textContent="Continue"; alert("Network error. Try again.");});
+  }
+}
+
+function activateRole() {
+  closeModal();
+  var badge = document.getElementById("roleBadge");
+  badge.textContent = currentName;
+  badge.className = "role-badge role-"+currentRole;
+  badge.style.display = "inline-block";
+  document.getElementById("changeBtn").style.display = "block";
+  showPage(currentRole);
+  if(currentRole==="supervisor") loadSupData();
+  if(currentRole==="owner") loadOwnerData();
+}
+
+function logout(){
+  currentRole=""; currentName="";
+  document.getElementById("roleBadge").style.display="none";
+  document.getElementById("changeBtn").style.display="none";
+  showPage("role");
+}
+
+// ── GODOWN ───────────────────────────────────────────────────
+function gdLoad() {
+  var bill = document.getElementById("gdBillInput").value.trim();
+  if(!bill) return;
+  gdCurrentBill = bill;
+  showPill("gdPill","loading","Loading...");
+  apiGet({action:"getBillItems", bill:bill}).then(function(data){
+    if(!data||!data.items||!data.items.length){showPill("gdPill","err","Bill not found");return;}
+    gdBillRows=data.items; gdCurrentDate=data.date;
+    // Get previous breakages for this bill
+    return apiGet({action:"getByBill", bill:bill}).then(function(prev){
+      renderGdPrev(prev||[]);
+      renderGdTable(data.items, prev||[]);
+      document.getElementById("gdBillTitle").textContent = "Invoice: "+bill;
+      document.getElementById("gdBillDate").textContent  = data.date;
+      document.getElementById("gdFlow").style.display = "block";
+      document.getElementById("gdSuccess").style.display = "none";
+      document.getElementById("gdSubmitBtn").disabled = true;
+      showPill("gdPill","ok",data.items.length+" items loaded");
+    });
+  }).catch(function(e){showPill("gdPill","err","Error: "+e.message);});
+}
+
+function renderGdPrev(prev) {
+  var wrap = document.getElementById("gdPrevWrap");
+  if(!prev.length){wrap.style.display="none";return;}
+  wrap.style.display="block"; wrap.innerHTML="";
+  var div = document.createElement("div"); div.className="prev-wrap";
+  var title = document.createElement("div"); title.className="prev-title"; title.textContent="Previously submitted for this bill";
+  div.appendChild(title);
+  prev.forEach(function(p){
+    var row=document.createElement("div");
+    row.style.cssText="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f5e07a;font-size:12px";
+    var locked=p.status!=="Reported";
+    row.innerHTML="<span><strong>"+p.item+"</strong> — "+p.boxesDamaged+" boxes"+(p.notes?" ("+p.notes+")":"")+"</span>"+
+      "<span>"+statusBadge(p.status)+(locked?" &#128274;":"")+"</span>";
+    div.appendChild(row);
+  });
+  wrap.appendChild(div);
+}
+
+function renderGdTable(items, prev) {
+  var tbody=document.getElementById("gdTbody"); tbody.innerHTML="";
+  items.forEach(function(r,i){
+    var ex=(prev||[]).find(function(p){return p.item.trim()===r.item.trim();});
+    var locked=ex&&ex.status!=="Reported";
+    var prevBoxes=ex?ex.boxesDamaged:0;
+    var prevNotes=ex?(ex.notes||""):"";
+    var tr=document.createElement("tr");
+    // Item name
+    var td0=document.createElement("td");
+    td0.innerHTML="<div style='font-size:12px;font-weight:600'>"+r.item+"</div>"+
+      (ex&&!locked?"<div style='font-size:10px;color:var(--teal);margin-top:2px'>&#10003; Editable</div>":"")+
+      (locked?"<div style='font-size:10px;color:var(--red);margin-top:2px'>&#128274; Verified</div>":"");
+    tr.appendChild(td0);
+    // Bill qty
+    var td1=document.createElement("td"); td1.style.cssText="text-align:center;color:#888;font-size:12px"; td1.textContent=r.qty; tr.appendChild(td1);
+    // Damaged input
+    var td2=document.createElement("td"); td2.style.textAlign="center";
+    var inp=document.createElement("input"); inp.type="number"; inp.className="inp-num";
+    inp.min="0"; inp.value=String(prevBoxes); inp.id="dmg-"+i; inp.disabled=locked;
+    inp.addEventListener("input",updateDmgCount);
+    td2.appendChild(inp); tr.appendChild(td2);
+    // Notes
+    var td3=document.createElement("td");
+    var note=document.createElement("input"); note.type="text"; note.className="inp-sm"; note.style.width="100%";
+    note.placeholder="Optional..."; note.value=prevNotes; note.id="note-"+i; note.disabled=locked;
+    if(locked) note.style.background="#f5f5f5";
+    td3.appendChild(note); tr.appendChild(td3);
+    tbody.appendChild(tr);
+  });
+  updateDmgCount();
+}
+
+function updateDmgCount() {
+  var count=0;
+  gdBillRows.forEach(function(r,i){
+    var el=document.getElementById("dmg-"+i);
+    if(el&&!el.disabled&&parseFloat(el.value||0)>0) count++;
+  });
+  document.getElementById("gdDmgCount").textContent=count;
+  document.getElementById("gdSubmitBtn").disabled=count===0;
+}
+
+function gdSubmit() {
+  var entries=[];
+  gdBillRows.forEach(function(r,i){
+    var el=document.getElementById("dmg-"+i);
+    if(!el||el.disabled) return;
+    var boxes=parseFloat(el.value||0);
+    if(boxes>0) entries.push({item:r.item, boxesDamaged:boxes, notes:(document.getElementById("note-"+i)||{}).value||""});
+  });
+  if(!entries.length) return;
+  var btn=document.getElementById("gdSubmitBtn");
+  btn.disabled=true; btn.textContent="Submitting...";
+  apiPost({action:"saveReport", billNumber:gdCurrentBill, billDate:gdCurrentDate, entries:entries, reportedBy:currentName})
+    .then(function(){
+      btn.textContent="&#10003; Submitted"; btn.style.background="var(--teal)";
+      document.getElementById("gdSuccess").style.display="block";
+    })
+    .catch(function(e){btn.disabled=false; btn.textContent="Submit report &#8593;"; alert("Error: "+e.message);});
+}
+
+// ── SUPERVISOR ───────────────────────────────────────────────
+function loadSupData() {
+  document.getElementById("supVerify").innerHTML="<div class='empty'><span class='spinner'></span> Loading...</div>";
+  apiGet({action:"getAll"}).then(function(data){
+    supData=data||[]; renderSupVerify();
+  }).catch(function(e){document.getElementById("supVerify").innerHTML="<div class='empty' style='color:var(--red)'>Error: "+e.message+"</div>";});
+}
+
+function renderSupVerify() {
+  var container=document.getElementById("supVerify");
+  var pending=supData.filter(function(b){return b.status==="Reported";});
+  if(!pending.length){container.innerHTML="<div class='empty'>No pending reports</div>";return;}
+  container.innerHTML="";
+
+  // Master bar
+  var bar=document.createElement("div"); bar.className="master-bar";
+  bar.innerHTML="<div style='display:flex;align-items:center;gap:10px;flex-wrap:wrap'>"+
+    "<div style='flex:1'><div style='font-size:13px;font-weight:700;color:var(--purple)'>Claim invoice number</div>"+
+    "<div style='font-size:11px;color:#666;margin-top:2px'>Raise in Zoho first, enter number here</div></div>"+
+    "<input type='text' id='masterInvNo' class='inp-sm' placeholder='e.g. INV-2026-001' style='width:200px'/>"+
+    "</div>";
+  var genBtn=document.createElement("button"); genBtn.className="btn btn-purple"; genBtn.style.cssText="width:100%;margin-top:10px";
+  genBtn.textContent="Generate claim summary"; genBtn.addEventListener("click",supGenerate);
+  bar.appendChild(genBtn); container.appendChild(bar);
+
+  // Group by bill
+  var byBill={}, order=[];
+  pending.forEach(function(b){if(!byBill[b.billNumber]){byBill[b.billNumber]=[];order.push(b.billNumber);}byBill[b.billNumber].push(b);});
+
+  order.forEach(function(bill){
+    var items=byBill[bill];
+    var card=document.createElement("div"); card.className="card";
+
+    // Header
+    var hdr=document.createElement("div"); hdr.style.cssText="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px";
+    hdr.innerHTML="<div><div style='font-size:13px;font-weight:700'>Invoice: "+bill+"</div>"+
+      "<div style='font-size:11px;color:#888;margin-top:2px'>By: "+items[0].reportedBy+" &middot; "+items[0].reportedAt+"</div></div>";
+    var selAll=document.createElement("button"); selAll.style.cssText="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);cursor:pointer";
+    selAll.textContent="Select all";
+    selAll.addEventListener("click", function(){
+      items.forEach(function(b){var c=document.getElementById("chk-"+b.id);if(c&&!c.checked){c.checked=true;toggleRow(b.id);}});
+    });
+    hdr.appendChild(selAll); card.appendChild(hdr);
+
+    // Table
+    var tbl=document.createElement("table"); tbl.className="tbl";
+    tbl.innerHTML="<thead><tr>"+
+      "<th style='width:4%'></th>"+
+      "<th>Product</th>"+
+      "<th style='width:11%;text-align:center'>Reported</th>"+
+      "<th style='width:12%;text-align:center'>Claim qty</th>"+
+      "<th style='width:14%;text-align:center'>Price/box</th>"+
+      "<th style='width:13%;text-align:right'>Total</th>"+
+      "</tr></thead>";
+    var tbody=document.createElement("tbody");
+
+    items.forEach(function(b){
+      var tr=document.createElement("tr"); tr.id="str-"+b.id;
+
+      var tc=document.createElement("td"); tc.style.cssText="padding:7px;text-align:center";
+      var chk=document.createElement("input"); chk.type="checkbox"; chk.id="chk-"+b.id;
+      chk.style.cssText="width:15px;height:15px;cursor:pointer";
+      chk.addEventListener("change",function(){toggleRow(b.id);}); tc.appendChild(chk); tr.appendChild(tc);
+
+      var ti=document.createElement("td"); ti.style.padding="7px 8px";
+      ti.innerHTML="<div style='font-size:12px;font-weight:600'>"+b.item+"</div>"+
+        (b.notes?"<div style='font-size:11px;color:#888'>"+b.notes+"</div>":"");
+      tr.appendChild(ti);
+
+      var tr2=document.createElement("td"); tr2.style.cssText="text-align:center;font-weight:700;color:var(--red);padding:7px"; tr2.textContent=b.boxesDamaged; tr.appendChild(tr2);
+
+      var tq=document.createElement("td"); tq.style.cssText="text-align:center;padding:7px";
+      var qInp=document.createElement("input"); qInp.type="number"; qInp.className="inp-num";
+      qInp.id="cqty-"+b.id; qInp.value=String(b.boxesDamaged); qInp.min="0"; qInp.disabled=true;
+      qInp.addEventListener("input",function(){calcRow(b.id);}); tq.appendChild(qInp); tr.appendChild(tq);
+
+      var tp=document.createElement("td"); tp.style.cssText="text-align:center;padding:7px";
+      var pInp=document.createElement("input"); pInp.type="number"; pInp.className="inp-num inp-price";
+      pInp.id="cprice-"+b.id; pInp.placeholder="0"; pInp.min="0"; pInp.disabled=true;
+      pInp.addEventListener("input",function(){calcRow(b.id);}); tp.appendChild(pInp); tr.appendChild(tp);
+
+      var tt=document.createElement("td"); tt.style.cssText="text-align:right;font-weight:600;color:var(--teal);padding:7px";
+      tt.id="ctot-"+b.id; tt.textContent="—"; tr.appendChild(tt);
+
+      tbody.appendChild(tr);
+    });
+    tbl.appendChild(tbody); card.appendChild(tbl); container.appendChild(card);
+  });
+
+  // Output
+  var out=document.createElement("div"); out.id="supOut"; out.style.display="none"; out.className="card";
+  out.innerHTML="<div style='font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--purple);margin-bottom:8px'>Claim summary</div>"+
+    "<div id='supEmailText' class='email-box'></div>";
+  var btnRow=document.createElement("div"); btnRow.style.cssText="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap";
+  var cBtn=document.createElement("button"); cBtn.className="copy-btn"; cBtn.textContent="Copy to clipboard"; cBtn.addEventListener("click",supCopy);
+  var sBtn=document.createElement("button"); sBtn.className="btn btn-sm"; sBtn.style.background="var(--teal-m)"; sBtn.textContent="Save & mark invoice raised"; sBtn.addEventListener("click",supSave);
+  btnRow.appendChild(cBtn); btnRow.appendChild(sBtn); out.appendChild(btnRow); container.appendChild(out);
+}
+
+function toggleRow(id){
+  var chk=document.getElementById("chk-"+id);
+  var qEl=document.getElementById("cqty-"+id); var pEl=document.getElementById("cprice-"+id);
+  var on=chk&&chk.checked;
+  if(qEl){qEl.disabled=!on;qEl.style.background=on?"#fff":"#f5f5f5";qEl.style.color=on?"#1a1a1a":"#aaa";}
+  if(pEl){pEl.disabled=!on;pEl.style.background=on?"#fff":"#f5f5f5";pEl.style.color=on?"#1a1a1a":"#aaa";}
+  var tot=document.getElementById("ctot-"+id); if(tot) tot.textContent=on?"0.00":"—";
+  if(on) calcRow(id);
+}
+
+function calcRow(id){
+  var qty=parseFloat((document.getElementById("cqty-"+id)||{}).value||0)||0;
+  var price=parseFloat((document.getElementById("cprice-"+id)||{}).value||0)||0;
+  var tot=document.getElementById("ctot-"+id);
+  if(tot) tot.textContent=qty*price>0?"Rs "+(qty*price).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2}):"0.00";
+}
+
+function rpad(s,n){s=String(s||"");while(s.length<n)s=s+" ";return s.substring(0,n);}
+function lpad(s,n){s=String(s||"");while(s.length<n)s=" "+s;return s.length>n?s.substring(s.length-n):s;}
+
+function supGenerate(){
+  var invNo=(document.getElementById("masterInvNo")||{}).value||""; invNo=invNo.trim();
+  var pending=supData.filter(function(b){return b.status==="Reported";});
+  var selected=pending.filter(function(b){var c=document.getElementById("chk-"+b.id);return c&&c.checked;});
+  if(!selected.length){alert("Select at least one item");return;}
+  if(!invNo){var el=document.getElementById("masterInvNo");if(el){el.focus();el.style.borderColor="var(--red)";}alert("Enter claim invoice number first");return;}
+
+  var lines=[],grand=0,sep="-".repeat(90);
+  lines.push("BREAKAGE CLAIM");
+  lines.push("Claim Invoice No : "+invNo);
+  lines.push("Prepared by      : "+currentName);
+  lines.push("Date             : "+new Date().toLocaleDateString("en-IN"));
+  lines.push(""); lines.push(sep);
+  lines.push(rpad("Invoice No",20)+"  "+rpad("Product",34)+"  "+lpad("Qty",5)+"  "+lpad("Price/Box",11)+"  "+lpad("Total (Rs)",12));
+  lines.push(sep);
+  selected.forEach(function(b){
+    var qty=parseFloat((document.getElementById("cqty-"+b.id)||{}).value||0)||0;
+    var price=parseFloat((document.getElementById("cprice-"+b.id)||{}).value||0)||0;
+    var total=qty*price; grand+=total;
+    lines.push(rpad(b.billNumber,20)+"  "+rpad(b.item.length>34?b.item.substring(0,32)+"..":b.item,34)+"  "+lpad(String(qty),5)+"  "+lpad("Rs "+price.toFixed(2),11)+"  "+lpad("Rs "+total.toFixed(2),12));
+  });
+  lines.push(sep);
+  lines.push(rpad("",20)+"  "+rpad("GRAND TOTAL",34)+"  "+lpad("",5)+"  "+lpad("",11)+"  "+lpad("Rs "+grand.toFixed(2),12));
+  lines.push(""); lines.push("Please process as credit note against our next invoice.");
+
+  var emailEl=document.getElementById("supEmailText"); var outEl=document.getElementById("supOut");
+  if(emailEl) emailEl.textContent=lines.join("\n");
+  if(outEl) outEl.style.display="block";
+}
+
+function supCopy(){
+  var el=document.getElementById("supEmailText"); if(!el) return;
+  if(navigator.clipboard){navigator.clipboard.writeText(el.textContent).then(function(){alert("Copied!");});}
+  else{var r=document.createRange();r.selectNode(el);window.getSelection().removeAllRanges();window.getSelection().addRange(r);alert("Selected — press Ctrl+C / Cmd+C to copy");}
+}
+
+function supSave(){
+  var invNo=(document.getElementById("masterInvNo")||{}).value||""; invNo=invNo.trim();
+  var pending=supData.filter(function(b){return b.status==="Reported";});
+  var selected=pending.filter(function(b){var c=document.getElementById("chk-"+b.id);return c&&c.checked;});
+  if(!selected.length||!invNo) return;
+  var updates=selected.map(function(b){
+    return {id:b.id, verifiedBy:currentName, claimInvoiceNo:invNo,
+      claimInvoiceDate:new Date().toLocaleDateString("en-IN"), rejected:false,
+      claimedQty:parseFloat((document.getElementById("cqty-"+b.id)||{}).value||b.boxesDamaged)||b.boxesDamaged,
+      pricePerBox:parseFloat((document.getElementById("cprice-"+b.id)||{}).value||0)||0};
+  });
+  apiPost({action:"supVerify", updates:updates})
+    .then(function(){loadSupData(); alert("Saved. "+updates.length+" item(s) marked as invoice raised.");})
+    .catch(function(e){alert("Error: "+e.message);});
+}
+
+function renderSupDone(){
+  var container=document.getElementById("supDone");
+  var done=supData.filter(function(b){return b.status!=="Reported";});
+  if(!done.length){container.innerHTML="<div class='empty'>No completed claims yet</div>";return;}
+  container.innerHTML="";
+  done.forEach(function(b){
+    var card=document.createElement("div"); card.className="brk-card";
+    card.innerHTML="<div class='brk-top'>"+
+      "<div><div class='brk-item'>"+b.item+"</div>"+
+      "<div class='brk-meta'>Bill: <strong>"+b.billNumber+"</strong>"+(b.claimInvoiceNo?" &middot; Claim inv: <strong>"+b.claimInvoiceNo+"</strong>":"")+"<br>By: "+(b.supVerifiedBy||"—")+"</div></div>"+
+      "<div><div class='big-num'>"+b.boxesDamaged+"</div><div class='big-lbl'>boxes</div><div style='margin-top:4px'>"+statusBadge(b.status)+"</div></div>"+
+      "</div>";
+    container.appendChild(card);
+  });
+}
+
+// ── OWNER ────────────────────────────────────────────────────
+function loadOwnerData(){
+  document.getElementById("ownerApprove").innerHTML="<div class='empty'><span class='spinner'></span> Loading...</div>";
+  apiGet({action:"getAll"}).then(function(data){
+    ownerData=data||[]; renderOwnerPane("ownerApprove");
+  }).catch(function(e){document.getElementById("ownerApprove").innerHTML="<div class='empty' style='color:var(--red)'>Error: "+e.message+"</div>";});
+}
+
+function renderOwnerPane(paneId){
+  var container=document.getElementById(paneId);
+  var items;
+  if(paneId==="ownerApprove") items=ownerData.filter(function(b){return b.status==="Claim Invoice Raised";});
+  else items=ownerData.filter(function(b){return b.status==="Email Sent"||b.status==="Survey Done";});
+  if(!items.length){container.innerHTML="<div class='empty'>"+(paneId==="ownerApprove"?"No claims ready to approve":"No open claims")+"</div>";return;}
+  container.innerHTML="";
+
+  items.forEach(function(b){
+    var card=document.createElement("div"); card.className="brk-card";
+    // Top
+    card.innerHTML="<div class='brk-top'>"+
+      "<div><div class='brk-item'>"+b.item+"</div>"+
+      "<div class='brk-meta'>Bill: <strong>"+b.billNumber+"</strong>"+(b.claimInvoiceNo?" &middot; Claim: <strong>"+b.claimInvoiceNo+"</strong>":"")+(b.supVerifiedBy?"<br>Verified by: "+b.supVerifiedBy:"")+"</div></div>"+
+      "<div><div class='big-num'>"+b.boxesDamaged+"</div><div class='big-lbl'>boxes</div><div style='margin-top:4px'>"+statusBadge(b.status)+"</div></div>"+
+      "</div>";
+
+    if(paneId==="ownerApprove"){
+      // Email draft
+      var NL="\n";
+      var email="Subject: Breakage Claim - Invoice "+b.billNumber+NL+NL+
+        "Dear Sir/Madam,"+NL+NL+
+        "We raise a breakage claim for the following:"+NL+NL+
+        "Invoice No    : "+b.billNumber+NL+
+        "Invoice Date  : "+b.billDate+NL+
+        "Product       : "+b.item+NL+
+        "Damaged Boxes : "+b.boxesDamaged+" boxes"+NL+
+        "Claim Invoice : "+(b.claimInvoiceNo||"-")+NL+
+        (b.notes?"Remarks       : "+b.notes+NL:"")+NL+
+        "Kindly adjust as credit note against our next invoice."+NL+NL+
+        "Regards,"+NL+"NDA Ceramics, Tumkur";
+      var draft=document.createElement("div"); draft.className="email-box"; draft.id="email-"+b.id; draft.textContent=email;
+      card.appendChild(draft);
+
+      var btnRow=document.createElement("div"); btnRow.style.cssText="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap";
+
+      var cBtn=document.createElement("button"); cBtn.className="copy-btn"; cBtn.textContent="Copy email";
+      cBtn.addEventListener("click",(function(id){return function(){
+        var el=document.getElementById("email-"+id); if(!el) return;
+        if(navigator.clipboard) navigator.clipboard.writeText(el.textContent).then(function(){alert("Copied!");});
+        else{var r=document.createRange();r.selectNode(el);window.getSelection().removeAllRanges();window.getSelection().addRange(r);}
+      };})(b.id));
+
+      var sBtn=document.createElement("button"); sBtn.className="btn btn-sm"; sBtn.textContent="Mark email sent";
+      sBtn.addEventListener("click",(function(bid){return function(){
+        var month=prompt("Enter month name (e.g. April 2026):");
+        if(month===null) return;
+        apiPost({action:"ownerApprove", updates:[{id:bid, action:"email_sent", approvedBy:currentName, month:month}]})
+          .then(function(){loadOwnerData();}).catch(function(e){alert("Error: "+e.message);});
+      };})(b.id));
+
+      var rBtn=document.createElement("button"); rBtn.className="btn btn-sm btn-red"; rBtn.textContent="Reject";
+      rBtn.addEventListener("click",(function(bid){return function(){
+        var reason=prompt("Rejection reason:");
+        if(reason===null) return;
+        apiPost({action:"ownerApprove", updates:[{id:bid, action:"reject", approvedBy:currentName, rejectionReason:reason}]})
+          .then(function(){loadOwnerData();}).catch(function(e){alert("Error: "+e.message);});
+      };})(b.id));
+
+      btnRow.appendChild(cBtn); btnRow.appendChild(sBtn); btnRow.appendChild(rBtn); card.appendChild(btnRow);
+
+    } else {
+      // Resolve section
+      var resDiv=document.createElement("div"); resDiv.style.cssText="background:var(--teal-l);border-radius:8px;padding:12px;margin-top:8px";
+      resDiv.innerHTML="<div style='font-size:11px;font-weight:700;text-transform:uppercase;color:var(--teal);margin-bottom:8px'>Record credit note</div>"+
+        "<div class='row-flex' style='margin-bottom:8px'>"+
+        "<input type='text' class='inp-sm' id='crno-"+b.id+"' placeholder='Credit note no.' style='flex:1;min-width:110px'/>"+
+        "<input type='number' class='inp-sm' id='cramt-"+b.id+"' placeholder='Amount (Rs)' style='width:120px'/>"+
+        "<input type='text' class='inp-sm' id='crinv-"+b.id+"' placeholder='Adjusted in invoice' style='flex:1;min-width:110px'/>"+
+        "</div>";
+      // Survey or credit button
+      var actionBtn=document.createElement("button"); actionBtn.className="btn btn-sm";
+      if(b.status==="Email Sent"){
+        actionBtn.textContent="Mark survey done"; actionBtn.style.background="var(--blue)";
+        actionBtn.addEventListener("click",(function(bid){return function(){
+          apiPost({action:"ownerApprove", updates:[{id:bid, action:"survey_done", approvedBy:currentName}]})
+            .then(function(){loadOwnerData();}).catch(function(e){alert("Error: "+e.message);});
+        };})(b.id));
+      } else {
+        actionBtn.textContent="Mark credit received"; actionBtn.style.background="var(--teal-m)";
+        actionBtn.addEventListener("click",(function(bid){return function(){
+          var crno=(document.getElementById("crno-"+bid)||{}).value||"";
+          var cramt=(document.getElementById("cramt-"+bid)||{}).value||0;
+          var crinv=(document.getElementById("crinv-"+bid)||{}).value||"";
+          if(!crno){alert("Enter credit note number");return;}
+          apiPost({action:"ownerApprove", updates:[{id:bid, action:"credit_received", approvedBy:currentName, creditNoteNo:crno, creditAmount:cramt, creditInvoiceNo:crinv}]})
+            .then(function(){loadOwnerData();}).catch(function(e){alert("Error: "+e.message);});
+        };})(b.id));
+      }
+      resDiv.appendChild(actionBtn); card.appendChild(resDiv);
+    }
+    container.appendChild(card);
+  });
+}
+
+function renderOwnerDash(){
+  var container=document.getElementById("ownerDash");
+  container.innerHTML="<div class='empty'><span class='spinner'></span> Loading...</div>";
+  apiGet({action:"getDashboard"}).then(function(data){
+    container.innerHTML="";
+    var sc=data.statusCounts||{};
+    var stats=document.createElement("div"); stats.className="stat-row";
+    stats.innerHTML=
+      "<div class='stat red'><div class='stat-v'>"+(data.totalBoxes||0)+"</div><div class='stat-l'>Total boxes</div></div>"+
+      "<div class='stat warn'><div class='stat-v'>"+((sc["Email Sent"]||0)+(sc["Survey Done"]||0))+"</div><div class='stat-l'>Pending</div></div>"+
+      "<div class='stat ok'><div class='stat-v'>Rs "+(data.totalCredit||0).toLocaleString("en-IN")+"</div><div class='stat-l'>Credits received</div></div>"+
+      "<div class='stat ok'><div class='stat-v'>"+(sc["Resolved"]||0)+"</div><div class='stat-l'>Resolved</div></div>";
+    container.appendChild(stats);
+
+    var pipe=document.createElement("div"); pipe.className="card";
+    pipe.innerHTML="<div style='font-size:11px;font-weight:700;text-transform:uppercase;color:#999;margin-bottom:10px'>Pipeline</div>"+
+      "<div class='row-flex' style='gap:6px'>"+
+      pipeItem("Reported",sc["Reported"]||0,"b-reported")+
+      pipeItem("Invoice Raised",sc["Claim Invoice Raised"]||0,"b-invoiced")+
+      pipeItem("Email Sent",sc["Email Sent"]||0,"b-sent")+
+      pipeItem("Survey Done",sc["Survey Done"]||0,"b-survey")+
+      pipeItem("Resolved",sc["Resolved"]||0,"b-resolved")+
+      pipeItem("Rejected",sc["Rejected"]||0,"b-rejected")+
+      "</div>";
+    container.appendChild(pipe);
+
+    if(data.openClaims&&data.openClaims.length){
+      var oc=document.createElement("div"); oc.className="card";
+      oc.innerHTML="<div style='font-size:11px;font-weight:700;text-transform:uppercase;color:#999;margin-bottom:10px'>Open claims</div>";
+      data.openClaims.forEach(function(c){
+        var row=document.createElement("div"); row.style.cssText="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)";
+        row.innerHTML="<div><div style='font-size:12px;font-weight:600'>"+c.item+"</div>"+
+          "<div style='font-size:11px;color:#888'>Bill: "+c.bill+" &middot; "+c.boxes+" boxes &middot; "+(c.claimInvoiceNo||"—")+"</div></div>"+
+          "<span class='badge "+(c.status==="Survey Done"?"b-survey":"b-sent")+"'>"+c.status+"</span>";
+        oc.appendChild(row);
+      });
+      container.appendChild(oc);
+    }
+  }).catch(function(e){container.innerHTML="<div class='empty' style='color:var(--red)'>Error: "+e.message+"</div>";});
+}
+
+function pipeItem(label,count,cls){
+  return "<div style='background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 10px;min-width:80px'>"+
+    "<span class='badge "+cls+"'>"+label+"</span><div style='font-size:20px;font-weight:700;margin-top:4px'>"+count+"</div></div>";
+}
+
+function statusBadge(s){
+  var map={"Reported":"b-reported","Claim Invoice Raised":"b-invoiced","Email Sent":"b-sent","Survey Done":"b-survey","Resolved":"b-resolved","Rejected":"b-rejected"};
+  return "<span class='badge "+(map[s]||"b-reported")+"'>"+s+"</span>";
+}
+
+function showPill(id,type,msg){
+  var p=document.getElementById(id); if(!p) return;
+  p.style.display="block";
+  p.innerHTML="<span class='pill pill-"+(type==="loading"?"loading":type==="ok"?"ok":"err")+"'>"+
+    (type==="loading"?"<span class='spinner'></span>":"<span>"+(type==="ok"?"&#10003;":"&#10005;")+"</span>")+
+    "<span>"+msg+"</span></span>";
+}
+</script>
+</body>
+</html>
